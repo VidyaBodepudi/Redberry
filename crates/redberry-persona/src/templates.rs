@@ -10,6 +10,7 @@ pub struct TemplateConfig {
     pub vagueness: VaguenessTemplates,
     pub syntax: SyntaxTemplates,
     pub drift: DriftTemplates,
+    pub fatigue: FatigueTemplates,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,6 +50,11 @@ pub struct DriftTemplates {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DriftLevelTemplates {
     pub snark: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FatigueTemplates {
+    pub level_3: Vec<String>,
 }
 
 impl TemplateConfig {

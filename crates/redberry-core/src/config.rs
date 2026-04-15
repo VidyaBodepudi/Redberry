@@ -105,7 +105,7 @@ fn default_session_ttl_hours() -> u32 {
 }
 
 fn default_preset() -> String {
-    "balanced".to_string()
+    "tier1".to_string()
 }
 
 // === Implementations ===
@@ -316,7 +316,7 @@ mod tests {
         assert_eq!(config.similarity_threshold, 0.3);
         assert_eq!(config.vagueness_threshold, 0.6);
         assert_eq!(config.session_ttl_hours, 24);
-        assert_eq!(config.model.preset, "balanced");
+        assert_eq!(config.model.preset, "tier1");
     }
 
     #[test]

@@ -117,11 +117,12 @@ async fn main() -> Result<()> {
                 
                 let db_path = config.resolved_db_path();
                 let mut cache = redberry_embed::ContextCache::new(&db_path)?;
-                // Generate a unique session ID for each CLI invocation to prevent cross-run context drift
-                let session_id = format!("cli_session_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_micros());
+                // Use a persistent default session so context drift and fatigue can accumulate across sequential CLI calls
+                let session_id = "cli_default_session".to_string();
 
                 if let Ok(embedding) = engine.embed_text(&prompt) {
                     if let Ok(Some(ctx)) = cache.get_context(&session_id) {
+                        analysis.consecutive_bad = ctx.consecutive_bad;
                         if !ctx.messages.is_empty() {
                             let recent_messages = ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
                             let mut centroid = vec![0.0f32; embedding.len()];
@@ -139,8 +140,22 @@ async fn main() -> Result<()> {
                         }
                     }
                     
+                    println!("\n========= [ Analysis Report ] =========");
+                    let analysis_json = serde_json::to_string_pretty(&analysis).unwrap();
+                    println!("{}\n", analysis_json);
+
+                    println!("========= [ Final Verdict ] =========");
+                    let persona = PersonalityEngine::new(config);
+                    let verdict = persona.generate_verdict(&analysis);
+                    let verdict_json = serde_json::to_string_pretty(&verdict).unwrap();
+                    println!("{}\n", verdict_json);
+
+                    let next_fatigue = if verdict.is_approved() { 0 } else { analysis.consecutive_bad + 1 };
+                    
                     let msg = redberry_core::ContextMessage { text: prompt.clone(), embedding };
-                    let _ = cache.append_messages(&session_id, &[msg]);
+                    let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
+                    
+                    return Ok(());
                 }
             } else {
                 info!("No model found. Real embeddings skipped (run `redberry setup` to enable).");

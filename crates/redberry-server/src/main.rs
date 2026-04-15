@@ -74,11 +74,16 @@ impl RedberryServer {
 
         let mut analysis = analyze_prompt(&req.prompt);
 
+        let mut current_fatigue = 0;
+
         // Perform semantic embedding and drift calculation
         match self.engine.embed_text(&req.prompt) {
             Ok(embedding) => {
                 let mut cache = self.cache.lock().await;
                 if let Ok(Some(ctx)) = cache.get_context(&session_id) {
+                    current_fatigue = ctx.consecutive_bad;
+                    analysis.consecutive_bad = current_fatigue;
+
                     if !ctx.messages.is_empty() {
                         let recent_messages = ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
                         let mut centroid = vec![0.0f32; embedding.len()];
@@ -96,11 +101,16 @@ impl RedberryServer {
                     }
                 }
 
+                let verdict = self.persona.generate_verdict(&analysis);
+                let next_fatigue = if verdict.is_approved() { 0 } else { current_fatigue + 1 };
+
                 let msg = ContextMessage {
                     text: req.prompt.clone(),
                     embedding,
                 };
-                let _ = cache.append_messages(&session_id, &[msg]);
+                let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
+                
+                return serde_json::to_string_pretty(&verdict).unwrap_or_else(|_| "{}".to_string());
             }
             Err(e) => {
                 error!("Embedding inference failed: {}", e);

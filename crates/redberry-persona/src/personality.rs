@@ -25,6 +25,15 @@ impl PersonalityEngine {
 
     /// Run the engine over the prompt analysis to yield a final verdict.
     pub fn generate_verdict(&self, analysis: &PromptAnalysis) -> RedberryVerdict {
+        // Priority 0: Severe User Fatigue
+        if analysis.consecutive_bad >= 3 {
+            let msg = self.format_with_tone(&TemplateConfig::pick_random(&self.templates.fatigue.level_3), analysis);
+            return RedberryVerdict::Fatigue {
+                roast: msg,
+                consecutive_bad: analysis.consecutive_bad,
+            };
+        }
+
         // Priority 1: Context Drift (if available and severe)
         if let Some(drift) = analysis.drift_score {
             if drift < self.config.similarity_threshold {
@@ -35,7 +44,7 @@ impl PersonalityEngine {
                     &self.templates.drift.low.snark
                 };
                 
-                let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list));
+                let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list), analysis);
                 return RedberryVerdict::ContextDrift {
                     snark: msg,
                     drift_score: drift,
@@ -65,7 +74,7 @@ impl PersonalityEngine {
                 missing.push("Specific entities instead of generic nouns".to_string());
             }
 
-            let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list));
+            let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list), analysis);
             return RedberryVerdict::TooVague {
                 mockery: msg,
                 missing_elements: missing,
@@ -92,7 +101,7 @@ impl PersonalityEngine {
                 }
             }
 
-            let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list));
+            let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list), analysis);
             return RedberryVerdict::NeedsWork {
                 roast: msg,
                 suggestions,
@@ -100,13 +109,25 @@ impl PersonalityEngine {
         }
 
         // If it passes all tests
-        let msg = self.format_with_tone(&TemplateConfig::pick_random(&self.templates.approved.compliments));
+        let msg = self.format_with_tone(&TemplateConfig::pick_random(&self.templates.approved.compliments), analysis);
         RedberryVerdict::Approved {
             backhanded_compliment: msg,
         }
     }
 
-    fn format_with_tone(&self, msg: &str) -> String {
-        self.tone.format_message(msg)
+    fn format_with_tone(&self, msg: &str, analysis: &PromptAnalysis) -> String {
+        let mut formatted = msg.to_string();
+        
+        // Entity injection
+        if formatted.contains("{{entity}}") {
+            let entity_text = if !analysis.decomposition.entities.is_empty() {
+                format!("{}", analysis.decomposition.entities[0])
+            } else {
+                "‘whatever you are trying to build’".to_string()
+            };
+            formatted = formatted.replace("{{entity}}", &entity_text);
+        }
+
+        self.tone.format_message(&formatted)
     }
 }

@@ -141,6 +141,9 @@ pub struct PromptAnalysis {
     /// Semantic coherence score (similarity to context centroid).
     /// `None` if no context was provided.
     pub coherence_score: Option<f32>,
+
+    /// How many bad prompts the user has sent consecutively in this session.
+    pub consecutive_bad: u32,
 }
 
 // =============================================================================
@@ -184,6 +187,14 @@ pub enum RedberryVerdict {
         /// What specific elements are missing.
         missing_elements: Vec<String>,
     },
+
+    /// The user is repeatedly failing to write a good prompt.
+    Fatigue {
+        /// The extreme mockery directed at the user.
+        roast: String,
+        /// Number of consecutive bad prompts.
+        consecutive_bad: u32,
+    },
 }
 
 impl RedberryVerdict {
@@ -201,6 +212,7 @@ impl RedberryVerdict {
             Self::NeedsWork { roast, .. } => roast,
             Self::ContextDrift { snark, .. } => snark,
             Self::TooVague { mockery, .. } => mockery,
+            Self::Fatigue { roast, .. } => roast,
         }
     }
 }
@@ -225,6 +237,8 @@ pub struct SessionContext {
     pub session_id: String,
     /// Ordered list of context messages.
     pub messages: Vec<ContextMessage>,
+    /// Number of consecutive bad prompts.
+    pub consecutive_bad: u32,
 }
 
 #[cfg(test)]

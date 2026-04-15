@@ -27,7 +27,8 @@ impl ContextCache {
             "CREATE TABLE IF NOT EXISTS sessions (
                 id TEXT PRIMARY KEY,
                 created_at INTEGER NOT NULL,
-                updated_at INTEGER NOT NULL
+                updated_at INTEGER NOT NULL,
+                consecutive_bad INTEGER NOT NULL DEFAULT 0
             )",
             [],
         ).map_err(|e| RedberryError::Cache(format!("Failed to create sessions table: {}", e)))?;
@@ -44,18 +45,24 @@ impl ContextCache {
             [],
         ).map_err(|e| RedberryError::Cache(format!("Failed to create messages table: {}", e)))?;
 
+        // Add consecutive_bad column if migrating
+        let _ = conn.execute("ALTER TABLE sessions ADD COLUMN consecutive_bad INTEGER NOT NULL DEFAULT 0", []);
+
         Ok(Self { conn })
     }
 
     /// Retrieve the complete context for a session.
     pub fn get_context(&self, session_id: &str) -> Result<Option<SessionContext>, RedberryError> {
-        let mut check_stmt = self.conn.prepare("SELECT id FROM sessions WHERE id = ?1")
+        let mut check_stmt = self.conn.prepare("SELECT consecutive_bad FROM sessions WHERE id = ?1")
             .map_err(|e| RedberryError::Cache(e.to_string()))?;
         
-        let exists = check_stmt.exists(params![session_id])
+        let mut consecutive_bad = 0;
+        let mut row_iter = check_stmt.query(params![session_id])
             .map_err(|e| RedberryError::Cache(e.to_string()))?;
-
-        if !exists {
+            
+        if let Some(row) = row_iter.next().map_err(|e| RedberryError::Cache(e.to_string()))? {
+            consecutive_bad = row.get(0).unwrap_or(0);
+        } else {
             return Ok(None);
         }
 
@@ -84,6 +91,7 @@ impl ContextCache {
         Ok(Some(SessionContext {
             session_id: session_id.to_string(),
             messages,
+            consecutive_bad,
         }))
     }
 
@@ -99,10 +107,10 @@ impl ContextCache {
 
         // Upsert session
         tx.execute(
-            "INSERT INTO sessions (id, created_at, updated_at) 
-             VALUES (?1, ?2, ?3) 
-             ON CONFLICT(id) DO UPDATE SET updated_at = ?3",
-            params![context.session_id, now, now],
+            "INSERT INTO sessions (id, created_at, updated_at, consecutive_bad) 
+             VALUES (?1, ?2, ?3, ?4) 
+             ON CONFLICT(id) DO UPDATE SET updated_at = ?3, consecutive_bad = ?4",
+            params![context.session_id, now, now, context.consecutive_bad],
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         // Delete old messages
@@ -139,7 +147,7 @@ impl ContextCache {
     }
 
     /// Append new messages to an existing session. Creates session if it doesn't exist.
-    pub fn append_messages(&mut self, session_id: &str, new_messages: &[ContextMessage]) -> Result<(), RedberryError> {
+    pub fn append_messages(&mut self, session_id: &str, new_messages: &[ContextMessage], consecutive_bad: u32) -> Result<(), RedberryError> {
         if new_messages.is_empty() {
             return Ok(());
         }
@@ -152,10 +160,10 @@ impl ContextCache {
         let tx = self.conn.transaction().map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         tx.execute(
-            "INSERT INTO sessions (id, created_at, updated_at) 
-             VALUES (?1, ?2, ?3) 
-             ON CONFLICT(id) DO UPDATE SET updated_at = ?3",
-            params![session_id, now, now],
+            "INSERT INTO sessions (id, created_at, updated_at, consecutive_bad) 
+             VALUES (?1, ?2, ?3, ?4) 
+             ON CONFLICT(id) DO UPDATE SET updated_at = ?3, consecutive_bad = ?4",
+            params![session_id, now, now, consecutive_bad],
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         let current_count: i64 = tx.query_row(
@@ -222,7 +230,8 @@ mod tests {
             "CREATE TABLE sessions (
                 id TEXT PRIMARY KEY,
                 created_at INTEGER NOT NULL,
-                updated_at INTEGER NOT NULL
+                updated_at INTEGER NOT NULL,
+                consecutive_bad INTEGER NOT NULL DEFAULT 0
             )",
             [],
         ).unwrap();
@@ -252,6 +261,7 @@ mod tests {
         let ctx = SessionContext {
             session_id: session_id.to_string(),
             messages,
+            consecutive_bad: 0,
         };
 
         cache.store_context(&ctx).unwrap();
@@ -271,11 +281,11 @@ mod tests {
         
         cache.append_messages(session_id, &[
             ContextMessage { text: "Msg 1".to_string(), embedding: vec![0.1] }
-        ]).unwrap();
+        ], 0).unwrap();
 
         cache.append_messages(session_id, &[
             ContextMessage { text: "Msg 2".to_string(), embedding: vec![0.2] }
-        ]).unwrap();
+        ], 1).unwrap();
 
         let retrieved = cache.get_context(session_id).unwrap().unwrap();
         assert_eq!(retrieved.messages.len(), 2);

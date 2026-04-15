@@ -25,6 +25,7 @@ pub fn analyze_prompt(prompt: &str) -> PromptAnalysis {
         syntax,
         drift_score: None,
         coherence_score: None,
+        consecutive_bad: 0,
     }
 }
 
