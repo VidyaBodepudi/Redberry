@@ -1,0 +1,24 @@
+[redberry]
+# Snark intensity: 1=mild, 2=passive-aggressive, 3=snarky (default), 4=full roast, 5=unhinged
+sass_level = 3
+
+# Semantic similarity threshold — below this triggers context drift warning
+similarity_threshold = 0.3
+
+# Vagueness score threshold — above this triggers vagueness roast
+vagueness_threshold = 0.6
+
+# Context database path
+context_db_path = "~/.local/share/redberry/context.db"
+
+# Session time-to-live in hours
+session_ttl_hours = 24
+
+# Model presets: "compact" (~22MB), "balanced" (~137MB), "quality" (~274MB)
+[redberry.model]
+preset = "balanced"
+
+# Or specify custom paths for any ONNX model:
+# onnx_path = "~/.local/share/redberry/models/model.onnx"
+# tokenizer_path = "~/.local/share/redberry/models/tokenizer.json"
+# embedding_dim = 256

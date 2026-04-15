@@ -1,0 +1,32 @@
+
+========= [ Analysis Report ] =========
+{
+  "decomposition": {
+    "raw_text": "Create a Rust CLI application using the clap crate that accepts a file path as an argument and outputs its contents.",
+    "intent": "Instruction",
+    "entities": [
+      "CLI",
+      "Rust"
+    ],
+    "constraints": [],
+    "context_references": [],
+    "word_count": 21
+  },
+  "vagueness": {
+    "score": 0.23400001,
+    "flags": [],
+    "hedge_words_found": [],
+    "specificity_ratio": 0.0952381,
+    "ambiguous_pronouns": []
+  },
+  "syntax": {
+    "score": 1.0,
+    "issues": [],
+    "filler_words_found": [],
+    "filler_ratio": 0.0
+  },
+  "drift_score": null,
+  "coherence_score": null
+}
+
+========= [ Final Verdict ] =========

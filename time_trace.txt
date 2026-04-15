@@ -1,0 +1,10 @@
+[2m2026-04-15T18:42:23.239606Z[0m [32m INFO[0m No config file found at /Users/vidyabodepudi/.config/redberry/config.toml, using defaults
+[2m2026-04-15T18:42:23.239713Z[0m [32m INFO[0m Analyzing prompt: 'Create a Rust CLI application using the clap crate that accepts a file path as an argument and outputs its contents.'
+[2m2026-04-15T18:42:23.242584Z[0m [32m INFO[0m Loading embeddings to calculate drift...
+[2m2026-04-15T18:42:23.242631Z[0m [32m INFO[0m Loading tokenizer from /Users/vidyabodepudi/.local/share/redberry/models/tokenizer.json
+[2m2026-04-15T18:42:23.258518Z[0m [32m INFO[0m Loading ONNX model from /Users/vidyabodepudi/.local/share/redberry/models/model.onnx...
+[2m2026-04-15T18:42:23.582825Z[0m [32m INFO[0m CPU optimisation: AppleM
+[2m2026-04-15T18:42:23.582876Z[0m [32m INFO[0m ARMv8.2 mmm_f16 and mmv_f16 activated
+[2m2026-04-15T18:42:23.582881Z[0m [32m INFO[0m ARMv8.2 tanh_f16 and sigmoid_f16 activated
+[2m2026-04-15T18:42:23.582907Z[0m [32m INFO[0m AMX optimisation activated
+[2m2026-04-15T18:42:23.835213Z[0m [32m INFO[0m Model loaded successfully.

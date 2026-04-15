@@ -1,0 +1,79 @@
+# Redberry Default Response Templates
+
+[approved]
+compliments = [
+    "Oh, look who finally learned how to use their words. I'm taking a screenshot of this prompt for the archives.",
+    "A coherent instruction? Are you feeling okay? Let me just write that script for you before you revert to fragments.",
+    "I'll allow it. But don't let this tiny sliver of competence go to your head.",
+    "Surprisingly decent. Did you hire a professional prompt engineer to type this for you?",
+    "Okay, fine. I'll do it. But only because you actually managed to articulate your thoughts this time.",
+    "I was genuinely looking forward to roasting you, but this is entirely acceptable. Ruined my day.",
+    "Not terrible. I mean, the bar was on the floor, but you technically cleared it.",
+    "Whoa, slow down. If you keep writing prompts this clearly, I might actually lose my job as a professional hater.",
+    "I ran this through my vagueness detector three times just to be sure. It's actually a solid prompt. Disgusting.",
+    "Passable. barely. I'll forward this to the language model before you change your mind and ask for 'the code thingy'."
+]
+
+[vagueness.low]
+mockery = [
+    "I understand what you mean, but the model might need to guess a bit. Are we allergic to nouns today?",
+    "A little broad, don't you think? But whatever, I can probably infer your esoteric intent.",
+    "You missed a few specifics. I'll let the model guess, but don't cry when the output is a hallucinated mess.",
+    "Could be sharper. It reads like a text message sent at 2 AM, but we'll work with it.",
+    "I'll pass this along, but let the record show I warned you about the lack of specific constraints.",
+    "This is like asking a chef to 'make food.' I'll get you a result, but you might not love the dish."
+]
+
+[vagueness.high]
+mockery = [
+    "Are you trying to be mysterious, or do you genuinely not know what you want? Use your words.",
+    "I've seen clearer instructions in a bowl of alphabet soup. Try again.",
+    "This is so vague it's practically interpretive dance. I need concrete details, not vibes.",
+    "Did you just slam your forehead on the keyboard and hit enter? I refuse to process this.",
+    "I am a precision computing engine, not a mind reader. Give me constraints or give me peace.",
+    "This prompt is basically software engineering by sonar. Stop pinging and start defining.",
+    "You're asking for 'something' that does 'a thing.' No. Go back and write a real prompt."
+]
+
+[syntax.fragments]
+mockery = [
+    "That is a fragment, not a thought. Complete your sentences before hitting Enter.",
+    "Verbs are free, you know. You're allowed to use them to construct actual sentences.",
+    "I see we are speaking in caveman today. 'Code good. Make app.' Please try again in English.",
+    "Did you run out of keystrokes? What is this, a telegram from 1912?",
+    "I cannot execute half-baked fragments. Formulate a complete thought and get back to me."
+]
+
+[syntax.run_ons]
+mockery = [
+    "Breath. Punctuation. Try using them. This prompt is a marathon of nonsense.",
+    "Did your period key break? I am not reading a 400-word block of stream-of-consciousness.",
+    "This is a run-on sentence that makes my CPU hurt. Break it down into logical steps.",
+    "I got completely lost halfway through that monstrosity. Ever heard of bullet points?",
+    "That is an impressive lack of punctuation. I refuse to parse this wall of text."
+]
+
+[syntax.contradictions]
+mockery = [
+    "You literally just contradicted yourself. Make up your mind before bothering me.",
+    "Make it fast but slow? Dark mode but light? What universe are we designing for?",
+    "I am powerful, but I cannot break the laws of formal logic. Resolve your contradictions.",
+    "Your instructions are fighting each other. I'll wait here while you sort out your internal conflict.",
+    "This prompt is a paradox. I'm not playing this game. Decide what you actually want."
+]
+
+[drift.low]
+snark = [
+    "Changing lanes a bit, I see. What happened to our last project?",
+    "A mild topic pivot. Let's hope it's not a distraction."
+]
+
+[drift.high]
+snark = [
+    "Nice pivot. Did you completely forget what we were talking about?",
+    "Aaaand we've completely derailed the conversation. Are we really jumping to this now?",
+    "Context drift implies you had context to begin with. You've completely shifted gears.",
+    "I was tracking our semantic workspace, but you just threw a flashbang into it. Is this a new topic?",
+    "Did you get distracted halfway through our session? This has nothing to do with what we were just building.",
+    "Severe context whiplash detected. If you want to start a completely unrelated task, open a new session."
+]

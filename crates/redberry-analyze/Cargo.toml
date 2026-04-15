@@ -1,0 +1,12 @@
+[package]
+name = "redberry-analyze"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Prompt decomposition and linguistic quality analysis for Redberry"
+
+[dependencies]
+redberry-core = { workspace = true }
+regex = { workspace = true }
+unicode-segmentation = { workspace = true }

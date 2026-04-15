@@ -1,0 +1,74 @@
+===== GOOD PROMPTS =====
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "Whoa, slow down. If you keep writing prompts this clearly, I might actually lose my job as a professional hater."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "Passable. barely. I'll forward this to the language model before you change your mind and ask for 'the code thingy'."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "Okay, fine. I'll do it. But only because you actually managed to articulate your thoughts this time."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "I'll allow it. But don't let this tiny sliver of competence go to your head."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "Oh, look who finally learned how to use their words. I'm taking a screenshot of this prompt for the archives."
+}
+
+
+===== BAD PROMPTS =====
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "Not terrible. I mean, the bar was on the floor, but you technically cleared it."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "A coherent instruction? Are you feeling okay? Let me just write that script for you before you revert to fragments."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "TooVague",
+  "mockery": "I'll pass this along, but let the record show I warned you about the lack of specific constraints.",
+  "missing_elements": [
+    "More words. Effort."
+  ]
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "I was genuinely looking forward to roasting you, but this is entirely acceptable. Ruined my day."
+}
+
+-----------------
+========= [ Final Verdict ] =========
+{
+  "type": "Approved",
+  "backhanded_compliment": "A coherent instruction? Are you feeling okay? Let me just write that script for you before you revert to fragments."
+}
+

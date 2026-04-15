@@ -1,0 +1,54 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/vidyabodepudi/Redberry"
+description = "Contrarian conversationalist MCP server — snarky prompt evaluation to reduce hallucination"
+
+[workspace.dependencies]
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# MCP Protocol
+rmcp = { version = "1.4", features = ["server", "transport-io", "macros"] }
+schemars = "1.0"
+
+# Pure-Rust ONNX inference
+tract-onnx = "0.21"
+ndarray = "0.16"
+
+# Tokenization (pure Rust HuggingFace tokenizer)
+tokenizers = { version = "0.21", default-features = false, features = ["fancy-regex"] }
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Data
+regex = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+rand = "0.9"
+unicode-segmentation = "1.11"
+reqwest = { version = "0.12", features = ["blocking", "stream"] }
+
+# Internal crates
+redberry-core = { path = "crates/redberry-core" }
+redberry-analyze = { path = "crates/redberry-analyze" }
+redberry-embed = { path = "crates/redberry-embed" }
+redberry-persona = { path = "crates/redberry-persona" }

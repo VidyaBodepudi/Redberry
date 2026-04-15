@@ -1,0 +1,25 @@
+[package]
+name = "redberry-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MCP stdio server binary for Redberry"
+
+[[bin]]
+name = "redberry-server"
+path = "src/main.rs"
+
+[dependencies]
+redberry-core = { workspace = true }
+redberry-analyze = { workspace = true }
+redberry-embed = { workspace = true }
+redberry-persona = { workspace = true }
+rmcp = { workspace = true }
+schemars = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
