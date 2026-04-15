@@ -47,20 +47,33 @@ Compare this to the standard 2,000ms - 5,000ms latency of pinging cloud provider
 
 ## ⚙️ Installation & Usage
 
-Ensure you have Rust/Cargo installed on your system.
+Ensure you have Rust and Cargo installed on your system.
 
-### 1. Compile & Setup
+### 1. Install from Source
+Since Redberry is a native Rust binary, you can install it globally to your system directly from the source repository:
+
 ```bash
 # Clone the repository
-cargo build --release
+git clone https://github.com/your-username/redberry.git
+cd redberry
 
-# Run the interactive setup to download your preferred embedding tier
-./target/release/redberry setup
+# Install the binary globally to your ~/.cargo/bin
+cargo install --path crates/redberry-cli
+cargo install --path crates/redberry-server
 ```
 
-### 2. Evaluate a Prompt
+### 2. Interactive Setup
+Once installed, run the setup command from anywhere. Redberry will interactively guide you to download your preferred embedding tier.
+
 ```bash
-./target/release/redberry analyze "Fix it."
+redberry setup
+```
+
+### 3. Evaluate a Prompt
+Now that Redberry is running natively, you can test it:
+
+```bash
+redberry analyze "Fix it."
 ```
 *Output:*
 ```json
@@ -74,7 +87,7 @@ cargo build --release
 ```
 
 ```bash
-./target/release/redberry analyze "Create a Rust CLI application using the clap crate that accepts a file path as an argument and outputs its contents."
+redberry analyze "Create a Rust CLI application using the clap crate that accepts a file path as an argument and outputs its contents."
 ```
 *Output:*
 ```json
