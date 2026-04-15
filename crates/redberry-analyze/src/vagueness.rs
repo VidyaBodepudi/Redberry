@@ -100,7 +100,7 @@ pub fn score_vagueness(prompt: &str, decomposition: &PromptDecomposition) -> Vag
         / weights.iter().sum::<f32>();
 
     let max_score = score_components.iter().copied().fold(0.0f32, f32::max);
-    
+
     // Normalize to 0.0–1.0 (70% max, 30% average)
     let final_score = (max_score * 0.7 + weighted_score * 0.3).clamp(0.0, 1.0);
 
@@ -265,7 +265,9 @@ mod tests {
 
     #[test]
     fn test_hedge_words_detected() {
-        let words: Vec<&str> = "maybe perhaps we could sort of do something".split_whitespace().collect();
+        let words: Vec<&str> = "maybe perhaps we could sort of do something"
+            .split_whitespace()
+            .collect();
         let hedges = detect_hedge_words(&words);
         assert!(hedges.len() >= 2, "Should find multiple hedge words");
     }

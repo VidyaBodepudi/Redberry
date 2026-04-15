@@ -44,9 +44,8 @@ pub fn ensure_model_files(preset: ModelPreset, models_dir: &Path) -> Result<(), 
 }
 
 fn download_file(url: &str, dest: &Path) -> Result<(), RedberryError> {
-    let response = reqwest::blocking::get(url).map_err(|e| {
-        RedberryError::Model(format!("Failed to download {}: {}", url, e))
-    })?;
+    let response = reqwest::blocking::get(url)
+        .map_err(|e| RedberryError::Model(format!("Failed to download {}: {}", url, e)))?;
 
     if !response.status().is_success() {
         return Err(RedberryError::Model(format!(
@@ -56,9 +55,9 @@ fn download_file(url: &str, dest: &Path) -> Result<(), RedberryError> {
         )));
     }
 
-    let bytes = response.bytes().map_err(|e| {
-        RedberryError::Model(format!("Failed to read response body: {}", e))
-    })?;
+    let bytes = response
+        .bytes()
+        .map_err(|e| RedberryError::Model(format!("Failed to read response body: {}", e)))?;
 
     let mut file = fs::File::create(dest)?;
     file.write_all(&bytes)?;

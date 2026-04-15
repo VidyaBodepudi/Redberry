@@ -196,7 +196,11 @@ impl RedberryConfig {
     /// Load configuration from a specific file path.
     pub fn load_from(path: &Path) -> Result<Self, RedberryError> {
         let content = std::fs::read_to_string(path).map_err(|e| {
-            RedberryError::Config(format!("Failed to read config file {}: {}", path.display(), e))
+            RedberryError::Config(format!(
+                "Failed to read config file {}: {}",
+                path.display(),
+                e
+            ))
         })?;
         let config_file: ConfigFile = toml::from_str(&content).map_err(|e| {
             RedberryError::Config(format!(
@@ -358,15 +362,9 @@ mod tests {
     #[test]
     fn test_parse_model_preset() {
         assert_eq!(ModelPreset::parse_str("tier1"), Some(ModelPreset::Tier1));
-        assert_eq!(
-            ModelPreset::parse_str("tier2"),
-            Some(ModelPreset::Tier2)
-        );
+        assert_eq!(ModelPreset::parse_str("tier2"), Some(ModelPreset::Tier2));
         // Case insensitive
-        assert_eq!(
-            ModelPreset::parse_str("TIER1"),
-            Some(ModelPreset::Tier1)
-        );
+        assert_eq!(ModelPreset::parse_str("TIER1"), Some(ModelPreset::Tier1));
         // Invalid
         assert_eq!(ModelPreset::parse_str("unknown"), None);
     }

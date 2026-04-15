@@ -61,14 +61,17 @@ mod tests {
     #[test]
     fn test_format_polite() {
         let msg = "This is bad.";
-        assert_eq!(SassTone::Polite.format_message(msg), "Suggestion: This is bad.");
+        assert_eq!(
+            SassTone::Polite.format_message(msg),
+            "Suggestion: This is bad."
+        );
     }
 
     #[test]
     fn test_format_roast() {
         let msg = "This is bad.";
         assert_eq!(SassTone::Roast.format_message(msg), "THIS IS BAD!");
-        
+
         let msg2 = "Are you serious?";
         assert_eq!(SassTone::Roast.format_message(msg2), "ARE YOU SERIOUS?");
     }
@@ -76,6 +79,9 @@ mod tests {
     #[test]
     fn test_format_unhinged() {
         let msg = "This is bad. Very bad.";
-        assert_eq!(SassTone::Unhinged.format_message(msg), "THIS IS BAD!!1! VERY BAD!!1!");
+        assert_eq!(
+            SassTone::Unhinged.format_message(msg),
+            "THIS IS BAD!!1! VERY BAD!!1!"
+        );
     }
 }

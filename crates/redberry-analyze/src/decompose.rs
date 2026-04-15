@@ -44,9 +44,7 @@ fn classify_intent(prompt: &str) -> PromptIntent {
         || trimmed.starts_with("should ")
     {
         // Distinguish explanation-questions from pure questions
-        if trimmed.starts_with("how ")
-            || trimmed.contains("how does")
-            || trimmed.contains("how do")
+        if trimmed.starts_with("how ") || trimmed.contains("how does") || trimmed.contains("how do")
         {
             return PromptIntent::Explanation;
         }
@@ -212,7 +210,9 @@ fn extract_entities(prompt: &str) -> Vec<String> {
 
         // ALL-CAPS words (acronyms): API, SQL, HTTP, etc.
         if cleaned.len() >= 2
-            && cleaned.chars().all(|c| c.is_uppercase() || c.is_ascii_digit())
+            && cleaned
+                .chars()
+                .all(|c| c.is_uppercase() || c.is_ascii_digit())
             && !entities.contains(&cleaned.to_string())
         {
             entities.push(cleaned.to_string());
@@ -236,13 +236,69 @@ fn extract_entities(prompt: &str) -> Vec<String> {
 /// Check if a word looks like a known technology/proper noun.
 fn is_tech_term(word: &str) -> bool {
     let tech_terms = [
-        "Python", "Rust", "JavaScript", "TypeScript", "Java", "Go", "Ruby", "Swift", "Kotlin",
-        "SQL", "HTML", "CSS", "React", "Vue", "Angular", "Node", "Docker", "Kubernetes", "AWS",
-        "Azure", "GCP", "Git", "GitHub", "Linux", "Windows", "Mac", "API", "REST", "GraphQL",
-        "HTTP", "JSON", "YAML", "TOML", "XML", "Redis", "Postgres", "MongoDB", "SQLite",
-        "Terraform", "Ansible", "Nginx", "Apache", "Django", "Flask", "FastAPI", "Express",
-        "Tokio", "Axum", "Actix", "Rocket", "ONNX", "PyTorch", "TensorFlow", "CUDA",
-        "WebSocket", "gRPC", "OAuth", "JWT", "MCP", "LLM", "GPT", "Claude", "Gemini",
+        "Python",
+        "Rust",
+        "JavaScript",
+        "TypeScript",
+        "Java",
+        "Go",
+        "Ruby",
+        "Swift",
+        "Kotlin",
+        "SQL",
+        "HTML",
+        "CSS",
+        "React",
+        "Vue",
+        "Angular",
+        "Node",
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "Azure",
+        "GCP",
+        "Git",
+        "GitHub",
+        "Linux",
+        "Windows",
+        "Mac",
+        "API",
+        "REST",
+        "GraphQL",
+        "HTTP",
+        "JSON",
+        "YAML",
+        "TOML",
+        "XML",
+        "Redis",
+        "Postgres",
+        "MongoDB",
+        "SQLite",
+        "Terraform",
+        "Ansible",
+        "Nginx",
+        "Apache",
+        "Django",
+        "Flask",
+        "FastAPI",
+        "Express",
+        "Tokio",
+        "Axum",
+        "Actix",
+        "Rocket",
+        "ONNX",
+        "PyTorch",
+        "TensorFlow",
+        "CUDA",
+        "WebSocket",
+        "gRPC",
+        "OAuth",
+        "JWT",
+        "MCP",
+        "LLM",
+        "GPT",
+        "Claude",
+        "Gemini",
     ];
     tech_terms.contains(&word)
 }
@@ -289,7 +345,13 @@ fn extract_constraints(prompt: &str) -> Vec<String> {
 
     // Explicit requirement markers
     let requirement_patterns = [
-        "must ", "should ", "needs to ", "has to ", "required to ", "make sure ", "ensure ",
+        "must ",
+        "should ",
+        "needs to ",
+        "has to ",
+        "required to ",
+        "make sure ",
+        "ensure ",
     ];
     for pattern in &requirement_patterns {
         if let Some(pos) = lower.find(pattern) {
@@ -453,8 +515,7 @@ mod tests {
 
     #[test]
     fn test_entities_proper_nouns() {
-        let entities =
-            extract_entities("Deploy the service to AWS using Docker and Kubernetes");
+        let entities = extract_entities("Deploy the service to AWS using Docker and Kubernetes");
         assert!(entities.contains(&"AWS".to_string()));
         assert!(entities.contains(&"Docker".to_string()));
         assert!(entities.contains(&"Kubernetes".to_string()));
@@ -462,7 +523,8 @@ mod tests {
 
     #[test]
     fn test_entities_quoted() {
-        let entities = extract_entities("Create a function called \"processData\" that handles input");
+        let entities =
+            extract_entities("Create a function called \"processData\" that handles input");
         assert!(entities.contains(&"processData".to_string()));
     }
 
@@ -471,7 +533,9 @@ mod tests {
     #[test]
     fn test_constraints_language() {
         let constraints = extract_constraints("Write a web scraper in Python using aiohttp");
-        assert!(constraints.iter().any(|c| c.to_lowercase().contains("python")));
+        assert!(constraints
+            .iter()
+            .any(|c| c.to_lowercase().contains("python")));
     }
 
     #[test]
@@ -500,9 +564,8 @@ mod tests {
 
     #[test]
     fn test_context_refs_none() {
-        let refs = extract_context_references(
-            "Write a Python function that calculates fibonacci numbers",
-        );
+        let refs =
+            extract_context_references("Write a Python function that calculates fibonacci numbers");
         assert!(refs.is_empty());
     }
 

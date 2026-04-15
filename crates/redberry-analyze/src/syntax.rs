@@ -143,14 +143,87 @@ fn is_fragment(prompt: &str, word_count: usize) -> bool {
 fn has_verb(lower: &str) -> bool {
     // Common verb patterns — not exhaustive but catches most imperative prompts
     let common_verbs = [
-        "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does",
-        "did", "will", "would", "could", "should", "can", "may", "might", "shall", "must",
-        "write", "create", "build", "make", "fix", "add", "remove", "update", "explain", "show",
-        "tell", "help", "get", "set", "run", "use", "find", "give", "go", "take", "know", "see",
-        "think", "want", "need", "try", "keep", "let", "put", "say", "turn", "call", "move",
-        "play", "work", "read", "check", "test", "send", "start", "stop", "open", "close",
-        "implement", "deploy", "configure", "install", "compile", "parse", "convert", "handle",
-        "generate", "analyze", "optimize", "refactor", "debug", "design", "list", "describe",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "can",
+        "may",
+        "might",
+        "shall",
+        "must",
+        "write",
+        "create",
+        "build",
+        "make",
+        "fix",
+        "add",
+        "remove",
+        "update",
+        "explain",
+        "show",
+        "tell",
+        "help",
+        "get",
+        "set",
+        "run",
+        "use",
+        "find",
+        "give",
+        "go",
+        "take",
+        "know",
+        "see",
+        "think",
+        "want",
+        "need",
+        "try",
+        "keep",
+        "let",
+        "put",
+        "say",
+        "turn",
+        "call",
+        "move",
+        "play",
+        "work",
+        "read",
+        "check",
+        "test",
+        "send",
+        "start",
+        "stop",
+        "open",
+        "close",
+        "implement",
+        "deploy",
+        "configure",
+        "install",
+        "compile",
+        "parse",
+        "convert",
+        "handle",
+        "generate",
+        "analyze",
+        "optimize",
+        "refactor",
+        "debug",
+        "design",
+        "list",
+        "describe",
     ];
 
     let words: Vec<&str> = lower.split_whitespace().collect();
@@ -298,17 +371,15 @@ mod tests {
 
     #[test]
     fn test_contradiction_detection() {
-        let report = check_syntax(
-            "Write a synchronous function but make it async for better performance",
-        );
+        let report =
+            check_syntax("Write a synchronous function but make it async for better performance");
         assert!(report.issues.contains(&SyntaxIssue::Contradictory));
     }
 
     #[test]
     fn test_no_contradictions() {
-        let report = check_syntax(
-            "Write an async function in Rust using tokio with error handling",
-        );
+        let report =
+            check_syntax("Write an async function in Rust using tokio with error handling");
         assert!(!report.issues.contains(&SyntaxIssue::Contradictory));
     }
 

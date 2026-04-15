@@ -69,12 +69,37 @@ Once installed, run the setup command from anywhere. Redberry will interactively
 redberry setup
 ```
 
-### 3. Evaluate a Prompt
-Now that Redberry is running natively, you can test it:
+### 3. Automatic Interceptor (Default Mode)
+The true power of Redberry is running it as a native **Model Context Protocol (MCP)** server.
+
+By providing the MCP path to your IDE, the server sits in the background locally and intercepts *every single prompt*. If you type a vague prompt into Claude or Cursor, Redberry natively returns severe snark straight into your chat interface, aggressively refusing to pass your code to the LLM until you fix the prompt!
+
+Ensure your IDE configuration (e.g., `claude_desktop_config.json` or `cline_mcp_settings.json`) looks like this:
+```json
+{
+  "mcpServers": {
+    "redberry": {
+      "command": "redberry-server",
+      "args": []
+    }
+  }
+}
+```
+
+### 4. Manual Verification (CLI Mode)
+If you prefer not to use the MCP server, you can manually evaluate prompts in the terminal:
 
 ```bash
 redberry analyze "Fix it."
 ```
+
+### 5. Open the Telemetry Dashboard (Web UI)
+Redberry natively tracks your prompt evaluations over time in your local SQLite database (detecting your syntax integrity, vagueness, and semantic drift context). You can visualize this data natively by spinning up the Redberry UI module!
+
+```bash
+cargo run --bin redberry-ui
+```
+Then navigate to `http://127.0.0.1:8443` in your browser to see your Geometric Sarcasm Radar Chart and prompt interaction history.
 *Output:*
 ```json
 {

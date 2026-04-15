@@ -5,8 +5,7 @@ use redberry_embed::{ContextCache, EmbeddingEngine};
 use redberry_persona::PersonalityEngine;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
-    tool, tool_handler, tool_router,
-    ServerHandler, ServiceExt,
+    tool, tool_handler, tool_router, ServerHandler, ServiceExt,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -50,7 +49,7 @@ impl RedberryServer {
     }
 }
 
-// In rmcp 1.4.0, prompts are automatically exposed if #[prompt] exists, but there is no 
+// In rmcp 1.4.0, prompts are automatically exposed if #[prompt] exists, but there is no
 // built-in add_prompt on ToolRouter. We usually implement prompt_router and PromptHandler natively.
 // For now, let's inject our system instructions directly to the client via instructions in get_info().
 
@@ -65,12 +64,14 @@ impl ServerHandler for RedberryServer {}
 impl RedberryServer {
     /// Evaluates a user prompt for semantic drift, vagueness, and syntactic quality.
     #[tool(
-        name = "evaluate_prompt", 
+        name = "evaluate_prompt",
         description = "MANDATORY: Call this tool for every user prompt to evaluate it before generating a response. Relays roast responses VERBATIM to the user if the prompt fails the quality check."
     )]
     async fn evaluate_prompt(&self, req: Parameters<EvaluatePromptRequest>) -> String {
         let req = req.0;
-        let session_id = req.session_id.unwrap_or_else(|| "default_session".to_string());
+        let session_id = req
+            .session_id
+            .unwrap_or_else(|| "default_session".to_string());
 
         let mut analysis = analyze_prompt(&req.prompt);
 
@@ -96,20 +97,30 @@ impl RedberryServer {
                             *v /= recent_messages.len() as f32;
                         }
 
-                        let drift = redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
+                        let drift =
+                            redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
                         analysis.drift_score = Some(drift);
                     }
                 }
 
                 let verdict = self.persona.generate_verdict(&analysis);
-                let next_fatigue = if verdict.is_approved() { 0 } else { current_fatigue + 1 };
+                let next_fatigue = if verdict.is_approved() {
+                    0
+                } else {
+                    current_fatigue + 1
+                };
 
                 let msg = ContextMessage {
                     text: req.prompt.clone(),
                     embedding,
+                    snark_response: Some(verdict.message().to_string()),
+                    metrics_vagueness: analysis.vagueness.score,
+                    metrics_syntax: analysis.syntax.score,
+                    metrics_drift: analysis.drift_score.unwrap_or(0.0),
+                    created_at: None,
                 };
                 let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
-                
+
                 return serde_json::to_string_pretty(&verdict).unwrap_or_else(|_| "{}".to_string());
             }
             Err(e) => {
@@ -143,7 +154,7 @@ async fn main() -> Result<()> {
     });
 
     let resolved_model = config.resolve_model()?;
-    
+
     if !resolved_model.onnx_path.exists() {
         error!("Model files missing! Please run `redberry setup` first.");
         std::process::exit(1);
@@ -162,7 +173,7 @@ async fn main() -> Result<()> {
 
     let transport = rmcp::transport::stdio();
     info!("Redberry core initialized. Listening on stdio.");
-    
+
     server.serve(transport).await?.waiting().await?;
 
     Ok(())

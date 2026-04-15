@@ -17,9 +17,8 @@ impl EmbeddingEngine {
     /// Load the model and tokenizer from the resolved configuration.
     pub fn load(config: ResolvedModelConfig) -> Result<Self, RedberryError> {
         tracing::info!("Loading tokenizer from {}", config.tokenizer_path.display());
-        let mut tokenizer = Tokenizer::from_file(&config.tokenizer_path).map_err(|e| {
-            RedberryError::Embedding(format!("Failed to load tokenizer: {}", e))
-        })?;
+        let mut tokenizer = Tokenizer::from_file(&config.tokenizer_path)
+            .map_err(|e| RedberryError::Embedding(format!("Failed to load tokenizer: {}", e)))?;
 
         // Disable padding if present, we'll handle token arrays dynamically
         tokenizer.with_padding(None);
@@ -44,9 +43,10 @@ impl EmbeddingEngine {
 
     /// Generate an embedding for a single string.
     pub fn embed_text(&self, text: &str) -> Result<Vec<f32>, RedberryError> {
-        let encoding = self.tokenizer.encode(text, true).map_err(|e| {
-            RedberryError::Embedding(format!("Failed to tokenize text: {}", e))
-        })?;
+        let encoding = self
+            .tokenizer
+            .encode(text, true)
+            .map_err(|e| RedberryError::Embedding(format!("Failed to tokenize text: {}", e)))?;
 
         let tokens = encoding.get_ids();
         let len = tokens.len();
@@ -70,10 +70,11 @@ impl EmbeddingEngine {
         let mut inputs = tvec![input_ids_tensor, attention_mask_tensor];
 
         if num_inputs == 3 {
-            let token_type_ids_tensor = tract_ndarray::Array2::from_shape_vec((1, len), token_type_ids)
-                .unwrap()
-                .into_tensor()
-                .into_tvalue();
+            let token_type_ids_tensor =
+                tract_ndarray::Array2::from_shape_vec((1, len), token_type_ids)
+                    .unwrap()
+                    .into_tensor()
+                    .into_tvalue();
             inputs.push(token_type_ids_tensor);
         } else if !(2..=3).contains(&num_inputs) {
             return Err(RedberryError::Embedding(format!(
@@ -83,9 +84,10 @@ impl EmbeddingEngine {
         }
 
         // Run inference
-        let result = self.model.run(inputs).map_err(|e| {
-            RedberryError::Embedding(format!("Inference failed: {}", e))
-        })?;
+        let result = self
+            .model
+            .run(inputs)
+            .map_err(|e| RedberryError::Embedding(format!("Inference failed: {}", e)))?;
 
         // Extract output tensor. Usually the first output is last_hidden_state: [batch(1), seq_len, hidden_size]
         let embeddings_tensor = &result[0];
@@ -97,7 +99,7 @@ impl EmbeddingEngine {
         // view.shape() is [1, seq_len, hidden_size]
         let shape = view.shape();
         if shape.len() != 3 {
-             return Err(RedberryError::Embedding(format!(
+            return Err(RedberryError::Embedding(format!(
                 "Expected output tensor of rank 3, got rank {}",
                 shape.len()
             )));
@@ -128,7 +130,7 @@ impl EmbeddingEngine {
         // Apply MRL dimensional truncation if configured and supported
         if self.config.embedding_dim < hidden_size {
             mean_pooled.truncate(self.config.embedding_dim);
-            
+
             // Re-normalize after truncation (standard practice for Matryoshka)
             let new_norm: f32 = mean_pooled.iter().map(|&x| x * x).sum::<f32>().sqrt();
             if new_norm > 0.0 {
@@ -143,7 +145,7 @@ impl EmbeddingEngine {
 
     /// Generate embeddings for a batch of strings.
     pub fn embed_batch(&self, texts: &[&str]) -> Result<Vec<Vec<f32>>, RedberryError> {
-        // Simple sequential processing for now. 
+        // Simple sequential processing for now.
         // A true batched implementation would require padding all inputs to the same length
         // and passing a batch_size > 1 tensor to tract.
         let mut results = Vec::with_capacity(texts.len());

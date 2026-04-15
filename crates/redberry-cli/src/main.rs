@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     let layer = tracing_subscriber::fmt::layer()
         .with_writer(std::io::stderr)
         .with_target(false);
-    
+
     tracing_subscriber::registry()
         .with(filter)
         .with(layer)
@@ -78,43 +78,47 @@ async fn main() -> Result<()> {
 
             info!("Starting setup for preset: {}", preset_enum.model_name());
             let models_dir = RedberryConfig::default_models_dir();
-            
-            tokio::task::spawn_blocking(move || {
-                ensure_model_files(preset_enum, &models_dir)
-            }).await.unwrap()?;
-            
+
+            tokio::task::spawn_blocking(move || ensure_model_files(preset_enum, &models_dir))
+                .await
+                .unwrap()?;
+
             info!("Setup complete. Redberry is ready.");
         }
         Commands::Serve => {
             info!("Starting Redberry Server...");
-            
+
             // Re-exec into the redberry-server binary.
             // When installed, redberry-server should be alongside redberry in PATH.
-            // For dev, we just run the cargo bin via Command if it exists, but typically 
+            // For dev, we just run the cargo bin via Command if it exists, but typically
             // a single workspace might just spawn the server binary directly.
-            
+
             // To support both development (cargo run) and installed binary (cargo install),
             // let's try calling `redberry-server` in PATH, or fallback to cargo run.
             let status = Command::new("redberry-server")
                 .spawn()
-                .or_else(|_| Command::new("cargo").args(["run", "--bin", "redberry-server", "--quiet"]).spawn())?
+                .or_else(|_| {
+                    Command::new("cargo")
+                        .args(["run", "--bin", "redberry-server", "--quiet"])
+                        .spawn()
+                })?
                 .wait()?;
-                
+
             if !status.success() {
                 error!("Server exited with status: {}", status);
             }
         }
         Commands::Analyze { prompt } => {
             info!("Analyzing prompt: '{}'", prompt);
-            
+
             let mut analysis = analyze_prompt(&prompt);
-            
+
             // Let's add embedding to calculate actual drift against local CLI state
             let resolved_model = config.resolve_model()?;
             if resolved_model.onnx_path.exists() {
                 info!("Loading embeddings to calculate drift...");
                 let engine = EmbeddingEngine::load(resolved_model)?;
-                
+
                 let db_path = config.resolved_db_path();
                 let mut cache = redberry_embed::ContextCache::new(&db_path)?;
                 // Use a persistent default session so context drift and fatigue can accumulate across sequential CLI calls
@@ -124,7 +128,8 @@ async fn main() -> Result<()> {
                     if let Ok(Some(ctx)) = cache.get_context(&session_id) {
                         analysis.consecutive_bad = ctx.consecutive_bad;
                         if !ctx.messages.is_empty() {
-                            let recent_messages = ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
+                            let recent_messages =
+                                ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
                             let mut centroid = vec![0.0f32; embedding.len()];
                             for msg in &recent_messages {
                                 for (i, &v) in msg.embedding.iter().enumerate() {
@@ -134,12 +139,14 @@ async fn main() -> Result<()> {
                             for v in &mut centroid {
                                 *v /= recent_messages.len() as f32;
                             }
-                            let drift = redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
+                            let drift = redberry_embed::similarity::cosine_similarity(
+                                &embedding, &centroid,
+                            );
                             analysis.drift_score = Some(drift);
                             info!("Calculated Drift Score: {}", drift);
                         }
                     }
-                    
+
                     println!("\n========= [ Analysis Report ] =========");
                     let analysis_json = serde_json::to_string_pretty(&analysis).unwrap();
                     println!("{}\n", analysis_json);
@@ -150,17 +157,29 @@ async fn main() -> Result<()> {
                     let verdict_json = serde_json::to_string_pretty(&verdict).unwrap();
                     println!("{}\n", verdict_json);
 
-                    let next_fatigue = if verdict.is_approved() { 0 } else { analysis.consecutive_bad + 1 };
-                    
-                    let msg = redberry_core::ContextMessage { text: prompt.clone(), embedding };
+                    let next_fatigue = if verdict.is_approved() {
+                        0
+                    } else {
+                        analysis.consecutive_bad + 1
+                    };
+
+                    let msg = redberry_core::ContextMessage {
+                        text: prompt.clone(),
+                        embedding,
+                        snark_response: Some(verdict.message().to_string()),
+                        metrics_vagueness: analysis.vagueness.score,
+                        metrics_syntax: analysis.syntax.score,
+                        metrics_drift: analysis.drift_score.unwrap_or(0.0),
+                        created_at: None,
+                    };
                     let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
-                    
+
                     return Ok(());
                 }
             } else {
                 info!("No model found. Real embeddings skipped (run `redberry setup` to enable).");
             }
-            
+
             println!("\n========= [ Analysis Report ] =========");
             let analysis_json = serde_json::to_string_pretty(&analysis)?;
             println!("{}\n", analysis_json);

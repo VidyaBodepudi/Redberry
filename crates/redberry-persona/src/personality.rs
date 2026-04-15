@@ -27,7 +27,10 @@ impl PersonalityEngine {
     pub fn generate_verdict(&self, analysis: &PromptAnalysis) -> RedberryVerdict {
         // Priority 0: Severe User Fatigue
         if analysis.consecutive_bad >= 3 {
-            let msg = self.format_with_tone(&TemplateConfig::pick_random(&self.templates.fatigue.level_3), analysis);
+            let msg = self.format_with_tone(
+                &TemplateConfig::pick_random(&self.templates.fatigue.level_3),
+                analysis,
+            );
             return RedberryVerdict::Fatigue {
                 roast: msg,
                 consecutive_bad: analysis.consecutive_bad,
@@ -43,8 +46,9 @@ impl PersonalityEngine {
                 } else {
                     &self.templates.drift.low.snark
                 };
-                
-                let msg = self.format_with_tone(&TemplateConfig::pick_random(template_list), analysis);
+
+                let msg =
+                    self.format_with_tone(&TemplateConfig::pick_random(template_list), analysis);
                 return RedberryVerdict::ContextDrift {
                     snark: msg,
                     drift_score: drift,
@@ -67,10 +71,20 @@ impl PersonalityEngine {
             if analysis.vagueness.flags.contains(&VaguenessFlag::TooShort) {
                 missing.push("More words. Effort.".to_string());
             }
-            if analysis.vagueness.flags.contains(&VaguenessFlag::MissingConstraints) {
-                missing.push("Specific constraints (e.g., framework, length, exact behavior)".to_string());
+            if analysis
+                .vagueness
+                .flags
+                .contains(&VaguenessFlag::MissingConstraints)
+            {
+                missing.push(
+                    "Specific constraints (e.g., framework, length, exact behavior)".to_string(),
+                );
             }
-            if analysis.vagueness.flags.contains(&VaguenessFlag::LowSpecificity) {
+            if analysis
+                .vagueness
+                .flags
+                .contains(&VaguenessFlag::LowSpecificity)
+            {
                 missing.push("Specific entities instead of generic nouns".to_string());
             }
 
@@ -94,10 +108,18 @@ impl PersonalityEngine {
             let mut suggestions = Vec::new();
             for issue in &analysis.syntax.issues {
                 match issue {
-                    SyntaxIssue::Fragment => suggestions.push("Write a complete sentence.".to_string()),
-                    SyntaxIssue::RunOn => suggestions.push("Use punctuation. Full stops are free.".to_string()),
-                    SyntaxIssue::FillerHeavy => suggestions.push("Remove filler words that dilute the point.".to_string()),
-                    SyntaxIssue::Contradictory => suggestions.push("Resolve your contradictory requirements.".to_string()),
+                    SyntaxIssue::Fragment => {
+                        suggestions.push("Write a complete sentence.".to_string())
+                    }
+                    SyntaxIssue::RunOn => {
+                        suggestions.push("Use punctuation. Full stops are free.".to_string())
+                    }
+                    SyntaxIssue::FillerHeavy => {
+                        suggestions.push("Remove filler words that dilute the point.".to_string())
+                    }
+                    SyntaxIssue::Contradictory => {
+                        suggestions.push("Resolve your contradictory requirements.".to_string())
+                    }
                 }
             }
 
@@ -109,7 +131,10 @@ impl PersonalityEngine {
         }
 
         // If it passes all tests
-        let msg = self.format_with_tone(&TemplateConfig::pick_random(&self.templates.approved.compliments), analysis);
+        let msg = self.format_with_tone(
+            &TemplateConfig::pick_random(&self.templates.approved.compliments),
+            analysis,
+        );
         RedberryVerdict::Approved {
             backhanded_compliment: msg,
         }
@@ -117,7 +142,7 @@ impl PersonalityEngine {
 
     fn format_with_tone(&self, msg: &str, analysis: &PromptAnalysis) -> String {
         let mut formatted = msg.to_string();
-        
+
         // Entity injection
         if formatted.contains("{{entity}}") {
             let entity_text = if !analysis.decomposition.entities.is_empty() {
