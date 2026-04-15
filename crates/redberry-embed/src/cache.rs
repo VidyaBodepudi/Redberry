@@ -94,19 +94,18 @@ impl ContextCache {
             .prepare("SELECT consecutive_bad FROM sessions WHERE id = ?1")
             .map_err(|e| RedberryError::Cache(e.to_string()))?;
 
-        let mut consecutive_bad = 0;
         let mut row_iter = check_stmt
             .query(params![session_id])
             .map_err(|e| RedberryError::Cache(e.to_string()))?;
 
-        if let Some(row) = row_iter
+        let consecutive_bad = if let Some(row) = row_iter
             .next()
             .map_err(|e| RedberryError::Cache(e.to_string()))?
         {
-            consecutive_bad = row.get(0).unwrap_or(0);
+            row.get(0).unwrap_or(0)
         } else {
             return Ok(None);
-        }
+        };
 
         let mut msg_stmt = self.conn.prepare(
             "SELECT text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, created_at FROM messages WHERE session_id = ?1 ORDER BY idx ASC"

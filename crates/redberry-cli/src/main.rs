@@ -111,84 +111,41 @@ async fn main() -> Result<()> {
         Commands::Analyze { prompt } => {
             info!("Analyzing prompt: '{}'", prompt);
 
-            let mut analysis = analyze_prompt(&prompt);
-
-            // Let's add embedding to calculate actual drift against local CLI state
             let resolved_model = config.resolve_model()?;
+            let persona = PersonalityEngine::new(config);
+            
+            // CLI Fallback behavior
+            let mut fallback = true;
+
             if resolved_model.onnx_path.exists() {
-                info!("Loading embeddings to calculate drift...");
-                let engine = EmbeddingEngine::load(resolved_model)?;
-
-                let db_path = config.resolved_db_path();
-                let mut cache = redberry_embed::ContextCache::new(&db_path)?;
-                // Use a persistent default session so context drift and fatigue can accumulate across sequential CLI calls
-                let session_id = "cli_default_session".to_string();
-
-                if let Ok(embedding) = engine.embed_text(&prompt) {
-                    if let Ok(Some(ctx)) = cache.get_context(&session_id) {
-                        analysis.consecutive_bad = ctx.consecutive_bad;
-                        if !ctx.messages.is_empty() {
-                            let recent_messages =
-                                ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
-                            let mut centroid = vec![0.0f32; embedding.len()];
-                            for msg in &recent_messages {
-                                for (i, &v) in msg.embedding.iter().enumerate() {
-                                    centroid[i] += v;
-                                }
-                            }
-                            for v in &mut centroid {
-                                *v /= recent_messages.len() as f32;
-                            }
-                            let drift = redberry_embed::similarity::cosine_similarity(
-                                &embedding, &centroid,
-                            );
-                            analysis.drift_score = Some(drift);
-                            info!("Calculated Drift Score: {}", drift);
+                if let Ok(engine) = EmbeddingEngine::load(resolved_model) {
+                    let db_path = redberry_core::RedberryConfig::load().unwrap_or_default().resolved_db_path();
+                    if let Ok(mut cache) = redberry_embed::ContextCache::new(&db_path) {
+                        let session_id = "cli_default_session".to_string();
+                        
+                        if let Ok(verdict) = redberry_pipeline::evaluate_pipeline(&prompt, &session_id, &engine, &mut cache, &persona) {
+                            println!("\n========= [ Final Verdict ] =========");
+                            let verdict_json = serde_json::to_string_pretty(&verdict).unwrap();
+                            println!("{}\n", verdict_json);
+                            fallback = false;
                         }
                     }
-
-                    println!("\n========= [ Analysis Report ] =========");
-                    let analysis_json = serde_json::to_string_pretty(&analysis).unwrap();
-                    println!("{}\n", analysis_json);
-
-                    println!("========= [ Final Verdict ] =========");
-                    let persona = PersonalityEngine::new(config);
-                    let verdict = persona.generate_verdict(&analysis);
-                    let verdict_json = serde_json::to_string_pretty(&verdict).unwrap();
-                    println!("{}\n", verdict_json);
-
-                    let next_fatigue = if verdict.is_approved() {
-                        0
-                    } else {
-                        analysis.consecutive_bad + 1
-                    };
-
-                    let msg = redberry_core::ContextMessage {
-                        text: prompt.clone(),
-                        embedding,
-                        snark_response: Some(verdict.message().to_string()),
-                        metrics_vagueness: analysis.vagueness.score,
-                        metrics_syntax: analysis.syntax.score,
-                        metrics_drift: analysis.drift_score.unwrap_or(0.0),
-                        created_at: None,
-                    };
-                    let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
-
-                    return Ok(());
                 }
-            } else {
-                info!("No model found. Real embeddings skipped (run `redberry setup` to enable).");
             }
+            
+            if fallback {
+                info!("No model/cache found or engine faulted. Running stateless text analysis...");
+                let analysis = analyze_prompt(&prompt);
+                
+                println!("\n========= [ Analysis Report ] =========");
+                let analysis_json = serde_json::to_string_pretty(&analysis)?;
+                println!("{}\n", analysis_json);
 
-            println!("\n========= [ Analysis Report ] =========");
-            let analysis_json = serde_json::to_string_pretty(&analysis)?;
-            println!("{}\n", analysis_json);
-
-            println!("========= [ Final Verdict ] =========");
-            let persona = PersonalityEngine::new(config);
-            let verdict = persona.generate_verdict(&analysis);
-            let verdict_json = serde_json::to_string_pretty(&verdict)?;
-            println!("{}\n", verdict_json);
+                println!("========= [ Final Verdict ] =========");
+                let verdict = persona.generate_verdict(&analysis);
+                let verdict_json = serde_json::to_string_pretty(&verdict)?;
+                println!("{}\n", verdict_json);
+            }
         }
     }
 

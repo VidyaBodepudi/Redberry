@@ -146,7 +146,7 @@ impl PersonalityEngine {
         // Entity injection
         if formatted.contains("{{entity}}") {
             let entity_text = if !analysis.decomposition.entities.is_empty() {
-                format!("{}", analysis.decomposition.entities[0])
+                analysis.decomposition.entities[0].to_string()
             } else {
                 "‘whatever you are trying to build’".to_string()
             };

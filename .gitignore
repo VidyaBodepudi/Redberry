@@ -1,8 +1,3 @@
-/target
-Cargo.lock
-*.swp
-*.swo
+/target/
 .DS_Store
-*.db
-data/models/*.onnx
-data/models/*.json
+/context.db

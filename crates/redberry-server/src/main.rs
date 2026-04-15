@@ -1,6 +1,5 @@
 use anyhow::Result;
-use redberry_analyze::analyze_prompt;
-use redberry_core::{ContextMessage, RedberryConfig};
+use redberry_core::RedberryConfig;
 use redberry_embed::{ContextCache, EmbeddingEngine};
 use redberry_persona::PersonalityEngine;
 use rmcp::{
@@ -73,63 +72,24 @@ impl RedberryServer {
             .session_id
             .unwrap_or_else(|| "default_session".to_string());
 
-        let mut analysis = analyze_prompt(&req.prompt);
+        let mut cache = self.cache.lock().await;
 
-        let mut current_fatigue = 0;
+        let verdict = redberry_pipeline::evaluate_pipeline(
+            &req.prompt,
+            &session_id,
+            &self.engine,
+            &mut cache,
+            &self.persona,
+        ).unwrap_or_else(|_| {
+            // Fallback to basic persona execution if pipeline embedding mapping faults
+            let analysis = redberry_analyze::analyze_prompt(&req.prompt);
+            self.persona.generate_verdict(&analysis)
+        });
 
-        // Perform semantic embedding and drift calculation
-        match self.engine.embed_text(&req.prompt) {
-            Ok(embedding) => {
-                let mut cache = self.cache.lock().await;
-                if let Ok(Some(ctx)) = cache.get_context(&session_id) {
-                    current_fatigue = ctx.consecutive_bad;
-                    analysis.consecutive_bad = current_fatigue;
-
-                    if !ctx.messages.is_empty() {
-                        let recent_messages = ctx.messages.iter().rev().take(5).collect::<Vec<_>>();
-                        let mut centroid = vec![0.0f32; embedding.len()];
-                        for msg in &recent_messages {
-                            for (i, &v) in msg.embedding.iter().enumerate() {
-                                centroid[i] += v;
-                            }
-                        }
-                        for v in &mut centroid {
-                            *v /= recent_messages.len() as f32;
-                        }
-
-                        let drift =
-                            redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
-                        analysis.drift_score = Some(drift);
-                    }
-                }
-
-                let verdict = self.persona.generate_verdict(&analysis);
-                let next_fatigue = if verdict.is_approved() {
-                    0
-                } else {
-                    current_fatigue + 1
-                };
-
-                let msg = ContextMessage {
-                    text: req.prompt.clone(),
-                    embedding,
-                    snark_response: Some(verdict.message().to_string()),
-                    metrics_vagueness: analysis.vagueness.score,
-                    metrics_syntax: analysis.syntax.score,
-                    metrics_drift: analysis.drift_score.unwrap_or(0.0),
-                    created_at: None,
-                };
-                let _ = cache.append_messages(&session_id, &[msg], next_fatigue);
-
-                return serde_json::to_string_pretty(&verdict).unwrap_or_else(|_| "{}".to_string());
-            }
-            Err(e) => {
-                error!("Embedding inference failed: {}", e);
-            }
+        match verdict {
+            redberry_core::RedberryVerdict::Approved { .. } => "Approved".to_string(),
+            _ => verdict.message().to_string(),
         }
-
-        let verdict = self.persona.generate_verdict(&analysis);
-        serde_json::to_string_pretty(&verdict).unwrap_or_else(|_| "{}".to_string())
     }
 }
 

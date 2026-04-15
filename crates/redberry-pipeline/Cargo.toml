@@ -1,0 +1,16 @@
+[package]
+name = "redberry-pipeline"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description.workspace = true
+
+[dependencies]
+redberry-analyze = { version = "0.1.0", path = "../redberry-analyze" }
+redberry-core = { version = "0.1.0", path = "../redberry-core" }
+redberry-embed = { version = "0.1.0", path = "../redberry-embed" }
+redberry-persona = { version = "0.1.0", path = "../redberry-persona" }
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

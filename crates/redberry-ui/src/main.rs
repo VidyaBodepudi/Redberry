@@ -1,5 +1,5 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Json, Router};
-use redberry_core::{ContextMessage, RedberryConfig, SessionContext};
+use redberry_core::RedberryConfig;
 use redberry_embed::ContextCache;
 use serde::Serialize;
 use std::sync::Arc;
