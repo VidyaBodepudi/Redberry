@@ -25,8 +25,8 @@ Through an expansive SQLite Context Cache, Redberry remembers the vector embeddi
 - Syntactical Errors (Fragments, run-on sentences)
 - Constraint Identification (Language limits, size guidelines)
 
-### 4. The Sarcastic Persona Engine
-Why use a boring linter when you can have a digital entity mock you? Redberry evaluates all extracted features and calculates a unified viability score.
+### 4. The Sarcastic Persona Engine (V2)
+Why use a boring linter when you can have a digital entity mock you? Redberry evaluates all extracted features and calculates a unified viability score. The newly upgraded V2 Persona Engine features multi-dimensional sass calibration and aggressive context snark.
 - **Below Threshold:** You get told exactly why your prompt is garbage ("Too Vague", "Context Drift"), accompanied by a delightfully passive-aggressive insult.
 - **Above Threshold:** Redberry reluctantly concedes that you did a good job and approves the prompt for execution.
 
@@ -54,8 +54,8 @@ Since Redberry is a native Rust binary, you can install it globally to your syst
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/redberry.git
-cd redberry
+git clone https://github.com/VidyaBodepudi/Redberry.git
+cd Redberry
 
 # Install the binaries globally to your ~/.cargo/bin
 cargo install --path crates/redberry-cli
@@ -104,7 +104,7 @@ Redberry natively tracks your prompt evaluations over time in your local SQLite 
 ```bash
 cargo run --bin redberry-ui
 ```
-Then navigate to `http://127.0.0.1:8443` in your browser to see your interactive Geometric Sarcasm Radar Chart, your daily execution Heatmap, and your prompt violation history—all powered completely locally by Vite, React 18, and Tailwind V4!
+Then navigate to securely to `https://127.0.0.1:8443` in your browser to see your interactive Geometric Sarcasm Radar Chart, your daily execution Heatmap, and your prompt violation history—all powered completely locally via HTTPS by Vite, React 18, and Tailwind V4!
 
 ```bash
 redberry analyze "Fix it."
