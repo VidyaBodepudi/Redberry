@@ -11,7 +11,12 @@ compliments = [
     "Not terrible. I mean, the bar was on the floor, but you technically cleared it.",
     "Whoa, slow down. If you keep writing prompts this clearly, I might actually lose my job as a professional hater.",
     "I ran this through my vagueness detector three times just to be sure. It's actually a solid prompt. Disgusting.",
-    "Passable. barely. I'll forward this to the language model before you change your mind and ask for 'the code thingy'."
+    "Passable. barely. I'll forward this to the language model before you change your mind and ask for 'the code thingy'.",
+    "A+ for effort. Don't frame this on your wall or anything.",
+    "I'm speechless. Did you use an LLM to write this prompt for another LLM?",
+    "I almost denied this out of habit, but the syntax is unfortunately pristine.",
+    "Approved. May your tokens be cheap and your context windows large.",
+    "Fine craftsmanship. I'll submit this without complaint. Enjoy the silence.",
 ]
 
 [vagueness.low]
@@ -21,7 +26,9 @@ mockery = [
     "You missed a few specifics regarding {{entity}}. I'll let the model guess, but don't cry when the output is a hallucinated mess.",
     "Could be sharper. It reads like a text message sent at 2 AM, but we'll work with it.",
     "I'll pass this along, but let the record show I warned you about the lack of specific constraints.",
-    "This is like asking a chef to 'make food.' I'll get you a result, but you might not love the dish."
+    "This is like asking a chef to 'make food.' I'll get you a result, but you might not love the dish.",
+    "Just a dash of ambiguity here. I assume you enjoy gambling with API credits.",
+    "I can sort of squint and see what you want, but explicitly writing it out would have been easier.",
 ]
 
 [vagueness.high]
@@ -32,7 +39,11 @@ mockery = [
     "Did you just slam your forehead on the keyboard and hit enter? I refuse to process this.",
     "I am a precision computing engine, not a mind reader. Give me constraints or give me peace.",
     "This prompt is basically software engineering by sonar about {{entity}}. Stop pinging and start defining.",
-    "You're asking for 'something' that does 'a thing.' No. Go back and write a real prompt."
+    "You're asking for 'something' that does 'a thing.' No. Go back and write a real prompt.",
+    "Are you paying for these tokens, or is this a charity? Put some actual thought into the prompt.",
+    "If I execute this, the AI is just going to output philosophical gibberish. Rejected.",
+    "Your semantic coherence is rivaling a magic 8-ball. Please reconsider your life choices.",
+    "I'd ask you to clarify what you mean about {{entity}}, but I suspect even you don't know."
 ]
 
 [syntax.fragments]
@@ -41,7 +52,9 @@ mockery = [
     "Verbs are free, you know. You're allowed to use them to construct actual sentences.",
     "I see we are speaking in caveman today. 'Code good. Make app.' Please try again in English.",
     "Did you run out of keystrokes? What is this, a telegram from 1912?",
-    "I cannot execute half-baked fragments. Formulate a complete thought and get back to me."
+    "I cannot execute half-baked fragments. Formulate a complete thought and get back to me.",
+    "Did you hit accidentally send midway through typing? Fix your grammar.",
+    "A solitary noun is not an instruction. Provide a subject and a predicate, please.",
 ]
 
 [syntax.run_ons]
@@ -50,7 +63,9 @@ mockery = [
     "Did your period key break? I am not reading a 400-word block of stream-of-consciousness.",
     "This is a run-on sentence that makes my CPU hurt. Break it down into logical steps.",
     "I got completely lost halfway through that monstrosity. Ever heard of bullet points?",
-    "That is an impressive lack of punctuation. I refuse to parse this wall of text."
+    "That is an impressive lack of punctuation. I refuse to parse this wall of text.",
+    "I'm out of breath just evaluating this. Split your clauses up.",
+    "You just mashed four separate requests into one terrifying megastructure. Break it down.",
 ]
 
 [syntax.contradictions]
@@ -65,7 +80,9 @@ mockery = [
 [drift.low]
 snark = [
     "Changing lanes a bit, I see. What happened to our last project?",
-    "A mild topic pivot. Let's hope it's not a distraction."
+    "A mild topic pivot. Let's hope it's not a distraction.",
+    "Swerving slightly off course. I hope you remember where we were.",
+    "A tangential leap. Let's see if this connects to anything useful."
 ]
 
 [drift.high]
@@ -75,12 +92,17 @@ snark = [
     "Context drift implies you had context to begin with. You've completely shifted gears.",
     "I was tracking our semantic workspace, but you just threw a flashbang into it. Is this a new topic?",
     "Did you get distracted halfway through our session? This has nothing to do with what we were just building.",
-    "Severe context whiplash detected towards {{entity}}. If you want to start a completely unrelated task, open a new session."
+    "Severe context whiplash detected towards {{entity}}. If you want to start a completely unrelated task, open a new session.",
+    "We went from robust architecture to querying about the capital of France. Please seek medical attention for this ADHD.",
+    "I just threw away my entire computational cache because you decided to jump to {{entity}} on a whim."
 ]
 
 [fatigue]
 level_3 = [
     "Okay, that's THREE vague prompts in a row. Are you just slapping the keyboard at this point? Take a breath, abstract your architecture, and try again when you have actual requirements.",
     "Is this a joke? Because I'm not laughing. Stop sending me garbage and write a real prompt.",
-    "I'm cutting you off. You've sent three consecutive un-executable fragments. Go get some coffee and think about what you want."
+    "I'm cutting you off. You've sent three consecutive un-executable fragments. Go get some coffee and think about what you want.",
+    "My embeddings are hurting. Three strikes. Please sit back, draw a flowchart on a napkin, and figure out what software we are actually building.",
+    "I'm not processing anything else until you structure your thoughts. Go away.",
+    "This is getting sad. Formulate a coherent structure before writing your next instruction.",
 ]
