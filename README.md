@@ -1,34 +1,40 @@
 # 🍓 Redberry: The Contrarian Conversationalist Engine
 
-> **"A coherent instruction? Are you feeling okay? Let me just write that script for you before you revert to fragments."**
+> **"Okay, that's THREE vague prompts in a row. Are you just slapping the keyboard at this point? Take a breath, abstract your architecture, and try again when you have actual requirements."**
 
-Welcome to **Redberry**, a high-performance local middleware engine built in purely compiled Rust. 
-Its single purpose in life? To ruthlessly evaluate your prompts, analyze their vagueness, and relentlessly bully you until you learn how to write decent instructions for your Language Models.
+Welcome to **Redberry V2**, a high-performance local middleware engine built in purely compiled Rust. 
+Its single purpose in life? To ruthlessly evaluate your prompts, mathematically map their geometric weaknesses, and relentlessly bully you until you learn how to write decent instructions for your Language Models.
 
-We waste too many tokens and compute cycles dealing with vague, unconstrained prompts. Redberry sits between you and your LLM, evaluates your prompt against multiple lexical and machine-learning heuristic criteria, and gives you a direct, sarcastic "Verdict" before allowing the prompt to drain your wallet.
+We waste too many tokens and compute cycles dealing with vague, unconstrained prompts. Redberry sits locally between you and your LLM (via MCP), evaluates your prompt against a native local ML pipeline mapped to five distinct criteria (Vagueness, Syntax, Semantic Drift, Coherence, and Specificity), and gives you a direct, sarcastic "Verdict" before allowing the prompt to drain your wallet.
 
 ---
 
-## ⚡ Features
+## ⚡ Core Features
 
-### 1. Lightning-Fast Pure Rust ML
-Redberry utilizes the `tract-onnx` inference engine, meaning you do not need oversized C++ installations, Python virtual environments, or CUDA dependencies to run complex Machine Learning checks. It compiles directly to native machine code.
+### 1. Lightning-Fast Pure Rust ML Vectors
+Redberry utilizes the `tract-onnx` inference CPU engine, meaning you do not need Python virtual environments or CUDA dependencies to run complex Machine Learning evaluations. It computes semantic multi-dimensional bounds totally natively.
 
 ### 2. Multi-Tier Semantic Embedding
 During installation, Redberry interacts with you to download its localized embedding model directly to your system drive.
-*   **Tier 1 (Standard):** Powered by `bge-small-en-v1.5` (INT8 Quantized, ~33MB). Lightning-fast document evaluations.
-*   **Tier 2 (Quality):** Powered by `bge-base-en-v1.5` (INT8 Quantized, ~110MB). Superior reasoning for dense code abstractions.
+*   **Tier 1 (Standard):** Powered by `bge-small-en-v1.5` (~33MB). Lightning-fast evaluations.
+*   **Tier 2 (Quality):** Powered by `bge-base-en-v1.5` (~110MB). Maximum reasoning for dense code abstractions.
 
-### 3. Context Drift & Vagueness Evaluation
-Through an expansive SQLite Context Cache, Redberry remembers the vector embeddings of your past queries. If it detects a severe "Context Drift" (e.g., asking about fixing a CSS gradient right after designing a Python compiler), it will roast your lack of focus and prompt you to start a new session. It checks for:
-- Lexical Vagueness (Hedge words, ambiguous pronouns)
-- Syntactical Errors (Fragments, run-on sentences)
-- Constraint Identification (Language limits, size guidelines)
+### 3. Exhaustive 5-Point Geometric Constraint Analysis
+Through an expansive SQLite Context Cache, Redberry tracks the localized mathematical execution flow of your prompts across a session, measuring them dynamically across 5 dimensions:
+- **Lexical/Semantic Vagueness:** Do you use empty pronouns (`"do that thing"`) or hedge words?
+- **Syntax Integrity:** Are there fragments, contradictions, or un-parsable run-on boundaries?
+- **Context Drift:** Are you wildly pivoting between domains (e.g. asking for Rust server architectures, then instantly asking about basketball)?
+- **Topic Coherence:** Is the execution matching the defined cosine semantic limits of the prior flow?
+- **Code Specificity:** Did you actually formulate constraints over the architecture?
 
-### 4. The Sarcastic Persona Engine (V2)
-Why use a boring linter when you can have a digital entity mock you? Redberry evaluates all extracted features and calculates a unified viability score. The newly upgraded V2 Persona Engine features multi-dimensional sass calibration and aggressive context snark.
-- **Below Threshold:** You get told exactly why your prompt is garbage ("Too Vague", "Context Drift"), accompanied by a delightfully passive-aggressive insult.
-- **Above Threshold:** Redberry reluctantly concedes that you did a good job and approves the prompt for execution.
+### 4. V2 Sarcasm Engine & Level-3 "Fatigue"
+Why use a boring linter when you can have a digital entity professionally roast you? Redberry evaluates the arrays and returns dynamically shifting insult boundaries. New to V2 is the **Fatigue Engine**. If you consecutively ignore Redberry and write terrible prompts, it escalates its mockery:
+- *"I'm cutting you off. You've sent three consecutive un-executable fragments. Go get some coffee and think about what you want."*
+- *"My embeddings are hurting. Three strikes. Please sit back, draw a flowchart on a napkin, and figure out what software we are actually building."*
+- *"Is this a joke? Because I'm not laughing. Stop sending me garbage and write a real prompt."*
+
+### 5. Enterprise-Secured Architecture
+This isn't a script; it's a natively hardened binary. In V2, Redberry's execution context is protected against raw payloads. We implement fixed local Tokenizer Tensor `TruncationParams (max 512)` to gracefully block arbitrary OOM (Out Of Memory) Payload vectors, while explicitly mapping all Axum API queries onto unbuffered localized C SQLite aggregators (`AVG`, limiting DB fetching) ensuring absolute protection against local 10GB+ Heap/DoS Memory attacks. 
 
 ---
 
@@ -38,48 +44,50 @@ Redberry brings virtually **zero overhead** to your LLM interactions.
 
 | Execution Mode | Latency (Apple Silicon M-Series) | Description |
 | :--- | :--- | :--- |
-| **CLI (Cold Start)** | `~ 800 ms` | Spinning up the native binary, parsing configuration, booting the `tract` engine, loading the 33-110MB ONNX tensors from NVMe storage to RAM, tokenizing, and evaluating. |
-| **Server / MCP (Hot)**| `~ 20 - 50 ms` | The tensors remain pre-loaded in memory. Tokenization, inference, SQLite cosine similarity matches, and snark generation are nearly instant. |
-
-Compare this to the standard 2,000ms - 5,000ms latency of pinging cloud providers like Claude or GPT-4. Redberry catches your terrible prompts faster than you can hit the enter key.
+| **CLI (Cold Start)** | `~ 800 ms` | Spinning up the native binary, booting `tract`, loading the ONNX tensors into RAM, tokenizing, and evaluating. |
+| **Server / MCP (Hot)**| `~ 20 - 50 ms` | Tensors remain hot. Tokenization, inference, SQLite cosine similarity matches, and snark generation execute instantly. |
 
 ---
 
 ## ⚙️ Installation & Usage
 
-Ensure you have Rust and Cargo installed on your system.
-
-### 1. Install from Source
-Since Redberry is a native Rust binary, you can install it globally to your system directly from the source repository:
+### 1. Install from Source & Compile Dashboard
 
 ```bash
 # Clone the repository
 git clone https://github.com/VidyaBodepudi/Redberry.git
 cd Redberry
 
-# Install the binaries globally to your ~/.cargo/bin
+# Install the native telemetry engine and MCP daemon
 cargo install --path crates/redberry-cli
 cargo install --path crates/redberry-server
 
-# To install the UI dashboard natively from source
-# (Ensure npm is installed to build the React application)
+# Build the beautiful V2 Carmine WebUI
 cd crates/redberry-ui/dashboard
 npm install && npm run build
 ```
 
 ### 2. Interactive Setup
-Once installed, run the setup command from anywhere. Redberry will interactively guide you to download your preferred embedding tier.
-
+Run setup to load the ML Tensors:
 ```bash
 redberry setup
 ```
 
-### 3. Automatic Interceptor (Default Mode)
-The true power of Redberry is running it as a native **Model Context Protocol (MCP)** server.
+### 3. Redberry Carmine Telemetry Dashboard (Web UI)
+Redberry natively tracks your prompt evaluations over time in your local SQLite database. You can visualize this data natively by spinning up the Redberry UI module!
 
-By providing the MCP path to your IDE, the server sits in the background locally and intercepts *every single prompt*. If you type a vague prompt into Claude or Cursor, Redberry natively returns severe snark straight into your chat interface, aggressively refusing to pass your code to the LLM until you fix the prompt!
+```bash
+cargo run --bin redberry-ui
+```
+Navigate to `http://127.0.0.1:8443` in your browser.
 
-Ensure your IDE configuration (e.g., `claude_desktop_config.json` or `cline_mcp_settings.json`) looks like this:
+> **Meet Carmine Elements**  
+> Built natively with React 18, Vite, Recharts, and Tailwind V4, the beautifully responsive dashboard evaluates your prompt history across the massive **Geometric Sarcasm Radar Chart**, logs recent violations mapped dynamically against glass-morphic structural panes, and handles telemetry via the heavily audited Axum memory bindings!
+
+### 4. Native Model Context Protocol (MCP) Interceptor
+Provide the MCP path to your IDE, and Redberry will physically intercept *every single prompt*. If you type a vague prompt into Claude or Cursor, Redberry natively returns severe snark straight into your chat interface, unilaterally refusing to pass your code to the LLM until you fix it!
+
+Ensure your IDE configuration (`claude_desktop_config.json` or `cline_mcp_settings.json`) looks like this:
 ```json
 {
   "mcpServers": {
@@ -91,37 +99,23 @@ Ensure your IDE configuration (e.g., `claude_desktop_config.json` or `cline_mcp_
 }
 ```
 
-### 4. Manual Verification (CLI Mode)
-If you prefer not to use the MCP server, you can manually evaluate prompts in the terminal:
+### 5. Manual CLI Analysis
 
 ```bash
-redberry analyze "Fix it."
-```
-
-### 5. Open the Telemetry Dashboard (Web UI)
-Redberry natively tracks your prompt evaluations over time in your local SQLite database (detecting your syntax integrity, vagueness, and semantic drift context). You can visualize this data natively by spinning up the Redberry UI module!
-
-```bash
-cargo run --bin redberry-ui
-```
-Then navigate to securely to `https://127.0.0.1:8443` in your browser to see your interactive Geometric Sarcasm Radar Chart, your daily execution Heatmap, and your prompt violation history—all powered completely locally via HTTPS by Vite, React 18, and Tailwind V4!
-
-```bash
-redberry analyze "Fix it."
+redberry analyze "hello world"
 ```
 *Output:*
 ```json
 {
-  "type": "TooVague",
-  "mockery": "I'll pass this along, but let the record show I warned you about the lack of specific constraints.",
-  "missing_elements": [
-    "More words. Effort."
-  ]
+  "type": "ContextDrift",
+  "mockery": "I was tracking our semantic workspace, but you just threw a flashbang into it. Is this a new topic?",
+  "drift_score": 0.14598769,
+  "prev_topic": "prior discussion"
 }
 ```
 
 ```bash
-redberry analyze "Create a Rust CLI application using the clap crate that accepts a file path as an argument and outputs its contents."
+redberry analyze "Write a highly concurrent Rust server using Axum and Tokio that handles incoming REST payloads."
 ```
 *Output:*
 ```json
@@ -135,9 +129,10 @@ redberry analyze "Create a Rust CLI application using the clap crate that accept
 
 ## 🏗️ Architecture
 
-Redberry is meticulously organized across several localized crates:
 - `redberry-core`: Unified configuration types, model presets, and validation mapping.
-- `redberry-embed`: Localized caching, SQLite context vectors, Model Setup, and `tract-onnx` execution.
-- `redberry-analyze`: Regex, POS tagging equivalents, constraint parsing, and drift analytics.
-- `redberry-persona`: The contrarian framework. Variable "sass levels" injected via TOML configuration templates.
-- `redberry-cli` & `redberry-server`: Binary wrappers allowing simple ad-hoc checks or persistent MCP background execution.
+- `redberry-embed`: Localized caching, robust SQL limit bounds, HuggingFace Tokenizer (capped bounds), and `tract-onnx`.
+- `redberry-analyze`: Lexical analyzers mapping vague hedge words and specific constraints.
+- `redberry-pipeline`: Mathematics bindings for multi-dimensional contextual geometry vectors.
+- `redberry-persona`: The contrarian semantic framework pushing TOML configuration template thresholds.
+- `redberry-ui`: The Axum/React V2 Data Dashboard.
+- `redberry-server`: The MCP bindings.
