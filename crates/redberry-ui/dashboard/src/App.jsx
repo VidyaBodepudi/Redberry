@@ -21,9 +21,11 @@ function App() {
   if (!stats) return <div className="p-8 text-center text-gray-400 font-medium h-screen flex justify-center items-center">Loading Telemetry...</div>;
 
   const radarData = [
-    { subject: 'Clarity (Inv. Vagueness)', A: Math.max(0, 100 - (stats.avg_vagueness * 100)), fullMark: 100 },
-    { subject: 'Syntax Integrity', A: Math.max(0, 100 - (stats.avg_syntax * 100)), fullMark: 100 },
-    { subject: 'Semantic Focus (Inv. Drift)', A: Math.max(0, 100 - (stats.avg_drift * 100)), fullMark: 100 },
+    { subject: 'Clarity (Inv. Vagueness)', A: Math.max(0, 100 - ((stats.avg_vagueness || 0) * 100)), fullMark: 100 },
+    { subject: 'Syntax Integrity', A: Math.max(0, 100 - ((stats.avg_syntax || 0) * 100)), fullMark: 100 },
+    { subject: 'Semantic Focus (Inv. Drift)', A: Math.max(0, 100 - ((stats.avg_drift || 0) * 100)), fullMark: 100 },
+    { subject: 'Semantic Coherence', A: Math.min(100, Math.max(0, (stats.avg_coherence || 0) * 100)), fullMark: 100 },
+    { subject: 'Code Specificity', A: Math.min(100, Math.max(0, (stats.avg_specificity || 0) * 100)), fullMark: 100 },
   ];
 
   return (
@@ -58,7 +60,7 @@ function App() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Radar Chart Panel */}
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-redberry-600 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#960018] to-transparent"></div>
           <h2 className="text-lg font-semibold text-white mb-2">Aggregate Prompt Strength</h2>
           <p className="text-sm text-gray-400 mb-6">Analyzing the holistic syntactic baseline of your commands.</p>
 
@@ -74,7 +76,8 @@ function App() {
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl relative overflow-hidden flex flex-col h-full border-l-4 border-l-purple-500">
+        <div className="glass-panel p-6 rounded-2xl relative overflow-hidden flex flex-col h-full">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#960018] to-transparent"></div>
           <h2 className="text-lg font-semibold text-white mb-2">Prompt Activity Heatmap</h2>
           <p className="text-sm text-gray-400 mb-6">Execution density across the last 30 days.</p>
 
@@ -125,7 +128,7 @@ function App() {
 
         {/* Recent Prompts List */}
         <div className="glass-panel p-0 rounded-2xl overflow-hidden flex flex-col h-full relative lg:col-span-2">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#960018] to-transparent"></div>
           <div className="p-6 pb-2">
             <h2 className="text-lg font-semibold text-white">Recent Violations</h2>
             <p className="text-sm text-gray-400">Direct insights from the persona engine.</p>
