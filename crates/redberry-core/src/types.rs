@@ -222,7 +222,7 @@ impl RedberryVerdict {
 // =============================================================================
 
 /// A stored context message with its embedding.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ContextMessage {
     /// The message text.
     pub text: String,
@@ -236,6 +236,10 @@ pub struct ContextMessage {
     pub metrics_syntax: f32,
     /// Semantic drift penalty (0.0 - 1.0) where 1.0 is totally disjointed drift.
     pub metrics_drift: f32,
+    /// Coherence variable calculating localized cluster trajectory
+    pub metrics_coherence: f32,
+    /// Specificity variable extracting bounding noun/entity constraint sizes
+    pub metrics_specificity: f32,
     /// Unix Epoch timestamp of prompt execution
     pub created_at: Option<i64>,
 }

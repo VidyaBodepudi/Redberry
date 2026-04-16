@@ -1,12 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-redberry-500: #E11D48;
-  --color-redberry-600: #BE123C;
-  --color-redberry-900: #881337;
+  --color-redberry-500: #DC143C;
+  --color-redberry-600: #B01030;
+  --color-redberry-900: #6E0A1E;
   --color-dark-800: #1f2937;
   --color-dark-900: #111827;
   --color-dark-950: #030712;
+}
+
+/* WebKit Scrollbar bounds for the Recent Violations Panel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark-900);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-redberry-500);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-redberry-600);
 }
 
 @layer base {

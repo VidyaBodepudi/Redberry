@@ -35,9 +35,16 @@ pub fn evaluate_pipeline(
                 *v /= recent_messages.len() as f32;
             }
 
-            let drift = redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
+            let similarity = redberry_embed::similarity::cosine_similarity(&embedding, &centroid);
+            
+            // Map similarity [-1.0, 1.0] to coherence [0.0, 1.0]
+            let coherence = ((similarity + 1.0) / 2.0).clamp(0.0, 1.0);
+            let drift = 1.0 - coherence;
+
+            analysis.coherence_score = Some(coherence);
             analysis.drift_score = Some(drift);
-            info!("Calculated Drift Score: {}", drift);
+            
+            info!("Calculated Coherence: {}, Drift: {}", coherence, drift);
         }
     }
 
@@ -51,11 +58,13 @@ pub fn evaluate_pipeline(
 
     let msg = ContextMessage {
         text: prompt.to_string(),
-        embedding,
+        embedding: embedding.clone(),
         snark_response: Some(verdict.message().to_string()),
         metrics_vagueness: analysis.vagueness.score,
         metrics_syntax: analysis.syntax.score,
         metrics_drift: analysis.drift_score.unwrap_or(0.0),
+        metrics_coherence: analysis.coherence_score.unwrap_or(1.0),
+        metrics_specificity: analysis.vagueness.specificity_ratio,
         created_at: None,
     };
     

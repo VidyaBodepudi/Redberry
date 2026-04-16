@@ -18,6 +18,8 @@ struct StatsResponse {
     avg_vagueness: f32,
     avg_syntax: f32,
     avg_drift: f32,
+    avg_coherence: f32,
+    avg_specificity: f32,
     total_approved: usize,
     total_rejected: usize,
 }
@@ -30,6 +32,8 @@ struct EvaluatedPrompt {
     metrics_vagueness: f32,
     metrics_syntax: f32,
     metrics_drift: f32,
+    metrics_coherence: f32,
+    metrics_specificity: f32,
     created_at: Option<i64>,
 }
 
@@ -87,39 +91,19 @@ async fn main() {
 async fn get_stats(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let cache = state.cache.lock().await;
 
-    let all_messages = cache.get_all_messages().unwrap_or_default();
-    let total_prompts = all_messages.len();
-
-    let mut avg_vagueness = 0.0;
-    let mut avg_syntax = 0.0;
-    let mut avg_drift = 0.0;
-    let mut total_rejected = 0;
-
-    for (_, msg) in &all_messages {
-        avg_vagueness += msg.metrics_vagueness;
-        avg_syntax += msg.metrics_syntax;
-        avg_drift += msg.metrics_drift;
-        if msg.snark_response.is_some() {
-            total_rejected += 1;
-        }
-    }
-
-    if total_prompts > 0 {
-        let count = total_prompts as f32;
-        avg_vagueness /= count;
-        avg_syntax /= count;
-        avg_drift /= count;
-    }
-
-    let total_approved = total_prompts - total_rejected;
+    // Fixed Vulnerability: Do not pull all rows into memory! 
+    // Aggregate queries directly on the DB if it grows to millions of rows.
+    let stats_data = cache.get_global_stats().unwrap_or((0, 0.0, 0.0, 0.0, 0.0, 0.0, 0));
 
     let stats = StatsResponse {
-        total_prompts,
-        avg_vagueness,
-        avg_syntax,
-        avg_drift,
-        total_approved,
-        total_rejected,
+        total_prompts: stats_data.0,
+        avg_vagueness: stats_data.1,
+        avg_syntax: stats_data.2,
+        avg_drift: stats_data.3,
+        avg_coherence: stats_data.4,
+        avg_specificity: stats_data.5,
+        total_approved: stats_data.0.saturating_sub(stats_data.6),
+        total_rejected: stats_data.6,
     };
 
     (StatusCode::OK, Json(stats))
@@ -127,7 +111,8 @@ async fn get_stats(State(state): State<Arc<AppState>>) -> impl IntoResponse {
 
 async fn get_prompts(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let cache = state.cache.lock().await;
-    let all_messages = cache.get_all_messages().unwrap_or_default();
+    // Fixed Vulnerability: Limit API vector boundary to latest 1000 items
+    let all_messages = cache.get_recent_messages(1000).unwrap_or_default();
 
     let prompts = all_messages
         .into_iter()
@@ -138,6 +123,8 @@ async fn get_prompts(State(state): State<Arc<AppState>>) -> impl IntoResponse {
             metrics_vagueness: msg.metrics_vagueness,
             metrics_syntax: msg.metrics_syntax,
             metrics_drift: msg.metrics_drift,
+            metrics_coherence: msg.metrics_coherence,
+            metrics_specificity: msg.metrics_specificity,
             created_at: msg.created_at,
         })
         .collect();

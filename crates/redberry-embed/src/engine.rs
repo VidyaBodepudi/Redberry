@@ -20,6 +20,13 @@ impl EmbeddingEngine {
         let mut tokenizer = Tokenizer::from_file(&config.tokenizer_path)
             .map_err(|e| RedberryError::Embedding(format!("Failed to load tokenizer: {}", e)))?;
 
+        // Mapped Vulnerability Fix: Explicit length truncation prevents OOM payload crashes
+        let truncation = tokenizers::TruncationParams {
+            max_length: 512,
+            ..Default::default()
+        };
+        let _ = tokenizer.with_truncation(Some(truncation));
+        
         // Disable padding if present, we'll handle token arrays dynamically
         tokenizer.with_padding(None);
 

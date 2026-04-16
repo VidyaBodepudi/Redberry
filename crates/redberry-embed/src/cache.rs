@@ -48,6 +48,8 @@ impl ContextCache {
                 metrics_vagueness REAL NOT NULL DEFAULT 0.0,
                 metrics_syntax REAL NOT NULL DEFAULT 0.0,
                 metrics_drift REAL NOT NULL DEFAULT 0.0,
+                metrics_coherence REAL NOT NULL DEFAULT 0.0,
+                metrics_specificity REAL NOT NULL DEFAULT 0.0,
                 created_at INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (session_id, idx),
                 FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE
@@ -107,11 +109,14 @@ impl ContextCache {
             return Ok(None);
         };
 
-        let mut msg_stmt = self.conn.prepare(
-            "SELECT text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, created_at FROM messages WHERE session_id = ?1 ORDER BY idx ASC"
+        let mut stmt = self.conn.prepare(
+            "SELECT text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, metrics_coherence, metrics_specificity, created_at 
+             FROM messages 
+             WHERE session_id = ?1 
+             ORDER BY idx ASC",
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
-        let messages_iter = msg_stmt
+        let messages_iter = stmt
             .query_map(params![session_id], |row| {
                 let text: String = row.get(0)?;
                 let embedding_bytes: Vec<u8> = row.get(1)?;
@@ -119,7 +124,9 @@ impl ContextCache {
                 let metrics_vagueness: f64 = row.get(3).unwrap_or(0.0);
                 let metrics_syntax: f64 = row.get(4).unwrap_or(0.0);
                 let metrics_drift: f64 = row.get(5).unwrap_or(0.0);
-                let created_at: Option<i64> = row.get(6)?;
+                let metrics_coherence: f64 = row.get(6).unwrap_or(0.0);
+                let metrics_specificity: f64 = row.get(7).unwrap_or(0.0);
+                let created_at: Option<i64> = row.get(8)?;
 
                 // Deserialize floats from bytes
                 let embedding: Vec<f32> = embedding_bytes
@@ -134,6 +141,8 @@ impl ContextCache {
                     metrics_vagueness: metrics_vagueness as f32,
                     metrics_syntax: metrics_syntax as f32,
                     metrics_drift: metrics_drift as f32,
+                    metrics_coherence: metrics_coherence as f32,
+                    metrics_specificity: metrics_specificity as f32,
                     created_at,
                 })
             })
@@ -182,7 +191,7 @@ impl ContextCache {
 
         // Insert new messages
         let mut msg_stmt = tx.prepare(
-            "INSERT INTO messages (session_id, idx, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"
+            "INSERT INTO messages (session_id, idx, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, metrics_coherence, metrics_specificity, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)"
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         for (idx, msg) in context.messages.iter().enumerate() {
@@ -209,6 +218,8 @@ impl ContextCache {
                     msg.metrics_vagueness as f64,
                     msg.metrics_syntax as f64,
                     msg.metrics_drift as f64,
+                    msg.metrics_coherence as f64,
+                    msg.metrics_specificity as f64,
                     timestamp,
                 ])
                 .map_err(|e| RedberryError::Cache(e.to_string()))?;
@@ -260,7 +271,7 @@ impl ContextCache {
             .unwrap_or(0);
 
         let mut msg_stmt = tx.prepare(
-            "INSERT INTO messages (session_id, idx, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"
+            "INSERT INTO messages (session_id, idx, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, metrics_coherence, metrics_specificity, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)"
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         for (i, msg) in new_messages.iter().enumerate() {
@@ -288,6 +299,8 @@ impl ContextCache {
                     msg.metrics_vagueness as f64,
                     msg.metrics_syntax as f64,
                     msg.metrics_drift as f64,
+                    msg.metrics_coherence as f64,
+                    msg.metrics_specificity as f64,
                     timestamp,
                 ])
                 .map_err(|e| RedberryError::Cache(e.to_string()))?;
@@ -299,15 +312,21 @@ impl ContextCache {
         Ok(())
     }
 
-    /// Retrieve all stored messages globally for UI dashboards.
+    /// Retrieve all stored messages globally for UI dashboards (Vulnerable: use get_recent_messages instead)
+    #[allow(dead_code)]
     pub fn get_all_messages(&self) -> Result<Vec<(String, ContextMessage)>, RedberryError> {
+        self.get_recent_messages(99999999)
+    }
+
+    /// Retrieve the most recent N messages globally to prevent Memory Bloat
+    pub fn get_recent_messages(&self, limit: usize) -> Result<Vec<(String, ContextMessage)>, RedberryError> {
         let mut msg_stmt = self.conn.prepare(
-            "SELECT session_id, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, created_at 
-             FROM messages ORDER BY session_id ASC, idx ASC"
+            "SELECT session_id, text, embedding, snark_response, metrics_vagueness, metrics_syntax, metrics_drift, metrics_coherence, metrics_specificity, created_at 
+             FROM messages ORDER BY created_at DESC LIMIT ?1"
         ).map_err(|e| RedberryError::Cache(e.to_string()))?;
 
         let messages_iter = msg_stmt
-            .query_map([], |row| {
+            .query_map([limit as i64], |row| {
                 let session_id: String = row.get(0)?;
                 let text: String = row.get(1)?;
                 let embedding_bytes: Vec<u8> = row.get(2)?;
@@ -315,7 +334,9 @@ impl ContextCache {
                 let metrics_vagueness: f64 = row.get(4).unwrap_or(0.0);
                 let metrics_syntax: f64 = row.get(5).unwrap_or(0.0);
                 let metrics_drift: f64 = row.get(6).unwrap_or(0.0);
-                let created_at: Option<i64> = row.get(7)?;
+                let metrics_coherence: f64 = row.get(7).unwrap_or(0.0);
+                let metrics_specificity: f64 = row.get(8).unwrap_or(0.0);
+                let created_at: Option<i64> = row.get(9)?;
 
                 let embedding: Vec<f32> = embedding_bytes
                     .chunks_exact(4)
@@ -331,6 +352,8 @@ impl ContextCache {
                         metrics_vagueness: metrics_vagueness as f32,
                         metrics_syntax: metrics_syntax as f32,
                         metrics_drift: metrics_drift as f32,
+                        metrics_coherence: metrics_coherence as f32,
+                        metrics_specificity: metrics_specificity as f32,
                         created_at,
                     },
                 ))
@@ -341,8 +364,48 @@ impl ContextCache {
         for msg in messages_iter {
             results.push(msg.map_err(|e| RedberryError::Cache(e.to_string()))?);
         }
-
         Ok(results)
+    }
+
+    /// Retrieve the aggregated statistics mathematically optimized by the DB
+    #[allow(dead_code, clippy::type_complexity)]
+    pub fn get_global_stats(&self) -> Result<(usize, f32, f32, f32, f32, f32, usize), RedberryError> {
+        let mut stmt = self.conn.prepare(
+            "SELECT 
+                COUNT(*), 
+                AVG(metrics_vagueness), 
+                AVG(metrics_syntax), 
+                AVG(metrics_drift), 
+                AVG(metrics_coherence), 
+                AVG(metrics_specificity),
+                SUM(CASE WHEN snark_response IS NOT NULL THEN 1 ELSE 0 END)
+             FROM messages"
+        ).map_err(|e| RedberryError::Cache(e.to_string()))?;
+
+        let mut stats_iter = stmt.query_map([], |row| {
+            let total: usize = row.get(0).unwrap_or(0);
+            let avg_vag: f64 = row.get(1).unwrap_or(0.0);
+            let avg_syn: f64 = row.get(2).unwrap_or(0.0);
+            let avg_dri: f64 = row.get(3).unwrap_or(0.0);
+            let avg_coh: f64 = row.get(4).unwrap_or(0.0);
+            let avg_spe: f64 = row.get(5).unwrap_or(0.0);
+            let rej: usize = row.get(6).unwrap_or(0);
+            Ok((
+                total, 
+                avg_vag as f32, 
+                avg_syn as f32, 
+                avg_dri as f32, 
+                avg_coh as f32, 
+                avg_spe as f32, 
+                rej
+            ))
+        }).map_err(|e| RedberryError::Cache(e.to_string()))?;
+
+        if let Some(res) = stats_iter.next() {
+            return res.map_err(|e| RedberryError::Cache(e.to_string()));
+        }
+
+        Ok((0, 0.0, 0.0, 0.0, 0.0, 0.0, 0))
     }
 
     /// Evict sessions older than `ttl_hours`.
