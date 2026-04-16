@@ -57,9 +57,14 @@ Since Redberry is a native Rust binary, you can install it globally to your syst
 git clone https://github.com/your-username/redberry.git
 cd redberry
 
-# Install the binary globally to your ~/.cargo/bin
+# Install the binaries globally to your ~/.cargo/bin
 cargo install --path crates/redberry-cli
 cargo install --path crates/redberry-server
+
+# To install the UI dashboard natively from source
+# (Ensure npm is installed to build the React application)
+cd crates/redberry-ui/dashboard
+npm install && npm run build
 ```
 
 ### 2. Interactive Setup
@@ -99,7 +104,11 @@ Redberry natively tracks your prompt evaluations over time in your local SQLite 
 ```bash
 cargo run --bin redberry-ui
 ```
-Then navigate to `http://127.0.0.1:8443` in your browser to see your Geometric Sarcasm Radar Chart and prompt interaction history.
+Then navigate to `http://127.0.0.1:8443` in your browser to see your interactive Geometric Sarcasm Radar Chart, your daily execution Heatmap, and your prompt violation history—all powered completely locally by Vite, React 18, and Tailwind V4!
+
+```bash
+redberry analyze "Fix it."
+```
 *Output:*
 ```json
 {
