@@ -5,6 +5,7 @@ use serde::Serialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::{error, info};
 
 struct AppState {
@@ -64,9 +65,12 @@ async fn main() {
     let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any);
 
     let app = Router::new()
-        .route("/", get(serve_ui))
         .route("/api/stats", get(get_stats))
         .route("/api/prompts", get(get_prompts))
+        .fallback_service(
+            ServeDir::new("crates/redberry-ui/dashboard/dist")
+                .fallback(ServeFile::new("crates/redberry-ui/dashboard/dist/index.html")),
+        )
         .layer(cors)
         .with_state(state);
 
@@ -140,10 +144,4 @@ async fn get_prompts(State(state): State<Arc<AppState>>) -> impl IntoResponse {
 
     let res = PromptsResponse { prompts };
     (StatusCode::OK, Json(res))
-}
-
-async fn serve_ui() -> impl IntoResponse {
-    // We will inline the raw React HTML file via include_str!
-    let html = include_str!("../index.html");
-    axum::response::Html(html)
 }

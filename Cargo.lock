@@ -1994,6 +1994,7 @@ dependencies = [
  "redberry-core",
  "redberry-embed",
  "redberry-persona",
+ "redberry-pipeline",
  "serde_json",
  "tokio",
  "tracing",
@@ -2039,6 +2040,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "redberry-pipeline"
+version = "0.1.0"
+dependencies = [
+ "redberry-analyze",
+ "redberry-core",
+ "redberry-embed",
+ "redberry-persona",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "redberry-server"
 version = "0.1.0"
 dependencies = [
@@ -2047,6 +2061,7 @@ dependencies = [
  "redberry-core",
  "redberry-embed",
  "redberry-persona",
+ "redberry-pipeline",
  "rmcp",
  "schemars",
  "serde",

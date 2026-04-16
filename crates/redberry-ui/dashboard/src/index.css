@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-redberry-500: #E11D48;
+  --color-redberry-600: #BE123C;
+  --color-redberry-900: #881337;
+  --color-dark-800: #1f2937;
+  --color-dark-900: #111827;
+  --color-dark-950: #030712;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-dark-950);
+    color: #f3f4f6;
+  }
+}
+
+.glass-panel {
+  background: rgba(31, 41, 55, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
