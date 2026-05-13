@@ -34,7 +34,7 @@ Why use a boring linter when you can have a digital entity professionally roast 
 - *"Is this a joke? Because I'm not laughing. Stop sending me garbage and write a real prompt."*
 
 ### 5. Enterprise-Secured Architecture
-This isn't a script; it's a natively hardened binary. In V2, Redberry's execution context is protected against raw payloads. We implement fixed local Tokenizer Tensor `TruncationParams (max 512)` to gracefully block arbitrary OOM (Out Of Memory) Payload vectors, while explicitly mapping all Axum API queries onto unbuffered localized C SQLite aggregators (`AVG`, limiting DB fetching) ensuring absolute protection against local 10GB+ Heap/DoS Memory attacks. 
+This isn't a script; it's a natively hardened binary. In V2, Redberry's execution context is protected against raw payloads. We implement fixed local Tokenizer Tensor `TruncationParams (max 512)` to gracefully block arbitrary OOM (Out Of Memory) Payload vectors, while explicitly mapping all Axum API queries onto unbuffered localized C SQLite aggregators (`AVG`, limiting DB fetching) ensuring absolute protection against local 10GB+ Heap/DoS Memory attacks. I did this because I could. If you're experiencing this degree of attack locally, please talk to someone else that isn't me. 
 
 ---
 
